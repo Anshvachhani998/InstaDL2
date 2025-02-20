@@ -10,7 +10,7 @@ cl = InstaClient()
 cl.delay_range = [3, 6]  
 
 
-@bot.on_message(filters.command("login"))
+@Client.on_message(filters.command("login"))
 def instagram_login(client, message):
     user_id = message.from_user.id
     message.reply_text("🔄 Checking Instagram session...")
@@ -31,7 +31,7 @@ def instagram_login(client, message):
     except ChallengeRequired:
         message.reply_text("⚠️ Instagram requires OTP. Check your email/SMS and use /otp <code> to proceed.")
 
-@bot.on_message(filters.command("otp"))
+@Client.on_message(filters.command("otp"))
 def handle_otp(client, message):
     otp_code = message.text.split(" ", 1)[-1].strip()
     if not otp_code.isdigit() or len(otp_code) != 6:

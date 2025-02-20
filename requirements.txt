@@ -3,3 +3,4 @@ tgcrypto
 flask
 aiohttp
 pytz
+instagrapi>=1.16.30

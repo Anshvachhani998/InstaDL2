@@ -2,6 +2,7 @@ import json
 from pyrogram import Client, filters
 from instagrapi import Client as InstaClient
 from instagrapi.exceptions import LoginRequired, ChallengeRequired
+from info import INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD  # Credentials alag file me rakho
 
 
 

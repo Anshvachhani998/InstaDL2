@@ -1,5 +1,10 @@
 from pyrogram import Client, filters
-from plugins.auth import insta_client
+from instagrapi import Client as InstaClient
+
+
+INSTAGRAM_SESSION_FILE = "session.json"
+insta_client = InstaClient()
+
 
 @Client.on_message(filters.command("profile"))
 def profile_command(client, message):

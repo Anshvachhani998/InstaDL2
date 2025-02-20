@@ -1,4 +1,5 @@
 from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from instagrapi import Client as InstaClient
 import os
 import re
@@ -30,22 +31,37 @@ def download_file(url, filename):
 @Client.on_message(filters.regex(INSTAGRAM_LINK_REGEX))  # ✅ Jab koi Instagram link send kare
 def download_instagram_media(client, message):
     url = re.search(INSTAGRAM_LINK_REGEX, message.text).group(0)  # ✅ Extract Instagram link
-    message.reply_text(" Downloading... Please wait!")
+    msg = message.reply_text("Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷")  # ✅ Show downloading message
 
     try:
         media_pk = insta_client.media_pk_from_url(url)  # ✅ Get media_pk
         media_info = insta_client.media_info(media_pk)  # ✅ Get media details
         
+        file_path = None
         if media_info.video_url:
-            video_path = download_file(media_info.video_url, "video.mp4")
-            if video_path:
-                message.reply_video(video_path, reply_to_message_id=message.id)
+            file_path = download_file(media_info.video_url, "video.mp4")
+            send_function = message.reply_video
         elif media_info.thumbnail_url:
-            photo_path = download_file(media_info.thumbnail_url, "photo.jpg")
-            if photo_path:
-                message.reply_photo(photo_path, reply_to_message_id=message.id)
+            file_path = download_file(media_info.thumbnail_url, "photo.jpg")
+            send_function = message.reply_photo
         else:
-            message.reply_text("\ No media found in this post.", reply_to_message_id=message.id)
+            msg.edit_text("⚠ No media found in this post.")
+            return
+
+        if file_path:
+            # ✅ Caption & Button
+            caption = "ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴠɪᴅᴇᴏ 🎥\n\n ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
+            buttons = InlineKeyboardMarkup([
+                [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
+            ])
+            
+            # ✅ Send media
+            send_function(file_path, caption=caption, reply_markup=buttons, reply_to_message_id=message.id)
+
+            # ✅ Delete file after sending
+            os.remove(file_path)
+        
+        msg.delete()  # ✅ Remove "Downloading..." message
 
     except Exception as e:
-        message.reply_text(f"\Error: {str(e)}", reply_to_message_id=message.id)
+        msg.edit_text(f"❌ Error: {str(e)}")

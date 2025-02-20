@@ -3,9 +3,17 @@ from instagrapi import Client as InstaClient
 import os
 import re
 
+
 # Initialize Instagram Client
 INSTAGRAM_SESSION_FILE = "session.json"
 insta_client = InstaClient()
+
+# Load session if exists
+if os.path.exists(INSTAGRAM_SESSION_FILE):
+    insta_client.load_settings(INSTAGRAM_SESSION_FILE)
+else:
+    insta_client.login("harshvi_039", "Ansh123@123")
+    insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
 
 # ✅ Instagram link detect karne ke liye regex
 INSTAGRAM_LINK_REGEX = r"(https?:\/\/www\.instagram\.com\/(?:p|reel|tv)\/[A-Za-z0-9_-]+)"

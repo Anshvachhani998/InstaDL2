@@ -94,5 +94,5 @@ def download_instagram_media(client, message):
         msg.edit_text(str(ve))
     except Exception as e:
         msg.edit_text("⚠ An error occurred while processing your request.")
-        error_details = f"❌ **Error Log:**\n\n**User:** {message.from_user.first_name} (`{message.from_user.id}`)\n**URL:** {url}\n**Error:** `{str(e)}`\n\n```{traceback.format_exc()}```"
+        error_details = f"❌ **Error Log:**\n\n**User:** {message.from_user.mention} (`{message.from_user.id}`)\n**URL:** {url}\n**Error:** `{str(e)}`\n\n```{traceback.format_exc()}```"
         client.send_message(LOG_CHANNEL, error_details)

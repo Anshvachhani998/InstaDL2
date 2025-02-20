@@ -7,11 +7,14 @@ from pyrogram.raw.all import layer
 from aiohttp import web
 import pytz
 from datetime import date, datetime
+from aiohttp import web
 from plugins import web_server
 from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL, PORT
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.config.fileConfig('logging.conf')
+logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("pyrogram").setLevel(logging.ERROR)
+
 
 class Bot(Client):
     def __init__(self):

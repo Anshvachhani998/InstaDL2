@@ -1,11 +1,21 @@
-from pyrogram import Client, filters
-from plugins.auth import insta_client
+from pyrogram import filters
+from pyrogram import Client as bot
+from instagrapi import Client as InstaClient
+import os
+
+# Initialize Instagram Client
+INSTAGRAM_SESSION_FILE = "session.json"
+insta_client = InstaClient()
+
+# Load session if exists
+if os.path.exists(INSTAGRAM_SESSION_FILE):
+    insta_client.load_settings(INSTAGRAM_SESSION_FILE)
+else:
+    insta_client.login("harshvi_039", "Ansh123@123")
+    insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
 
 
-
-
-
-@Client.on_message(filters.command("profile"))
+@bot.on_message(filters.command("profile"))
 def profile_command(client, message):
     if len(message.command) < 2:
         message.reply_text("⚠️ Please provide a username: `/profile <username>`")
@@ -31,4 +41,3 @@ def profile_command(client, message):
         message.reply_photo(profile_pic, caption=response_text)
     except Exception as e:
         message.reply_text(f"❌ Error: {str(e)}")
-

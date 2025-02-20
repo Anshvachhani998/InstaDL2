@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from plugins.auth import InstaClient
+from plugins.auth import insta_client
 
 
 

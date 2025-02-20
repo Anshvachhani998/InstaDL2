@@ -1,3 +1,4 @@
+import requests
 from pyrogram import filters
 from pyrogram import Client as bot
 from instagrapi import Client as InstaClient
@@ -33,11 +34,22 @@ def profile_command(client, message):
         response_text = f"""
         📌 **Instagram Profile Info**
         👤 **Username:** {username}
-        📖 **Bio:** {bio}
+        📚 **Bio:** {bio}
         👥 **Followers:** {followers}
         🔄 **Following:** {following}
         """
 
-        message.reply_photo(profile_pic, caption=response_text)
+        # Download the profile picture
+        img_data = requests.get(profile_pic).content
+        img_path = f"{username}_profile.jpg"
+        with open(img_path, "wb") as f:
+            f.write(img_data)
+
+        # Send the image
+        message.reply_photo(img_path, caption=response_text)
+
+        # Remove the downloaded image to save space
+        os.remove(img_path)
+
     except Exception as e:
         message.reply_text(f"❌ Error: {str(e)}")

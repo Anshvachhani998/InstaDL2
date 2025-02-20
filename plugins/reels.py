@@ -48,7 +48,7 @@ def download_instagram_media(client, message):
             raise ValueError("⚠ No media found in this post.")  
 
         if file_path:
-            first_name = message.from_user.first_name if message.from_user.first_name else "Unknown User"
+            first_name = message.from_user.mention
             user_id = message.from_user.id
             
             caption_user = "ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴠɪᴅᴇᴏ 🎥\n\nᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
@@ -56,7 +56,7 @@ def download_instagram_media(client, message):
                 [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
             ])
 
-            caption_dump = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Sᴏᴜʀᴄᴇ URL:** [Cʟɪᴄᴋ Hᴇʀᴇ]({url})"
+            caption_dump = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** {message.from_user.mention} (Telegram ID: `{user_id}`)\n📌 **Sᴏᴜʀᴄᴇ URL:** [Cʟɪᴄᴋ Hᴇʀᴇ]({url})"
 
             # ✅ Send media to user
             if is_video:

@@ -5,7 +5,7 @@ from instagrapi import Client as InstaClient
 from instagrapi.exceptions import LoginRequired, ChallengeRequired
 from info import INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD  # Credentials alag file me rakho
 
-
+SESSION_FILE = "session.json"
 
 cl = InstaClient()
 cl.delay_range = [3, 6]  

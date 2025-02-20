@@ -2,6 +2,7 @@ import os
 from instagrapi import Client as InstaClient
 from instagrapi.exceptions import LoginRequired
 
+SESSION_FILE = "session.json" 
 INSTAGRAM_SESSION_FILE = "session.json"
 insta_client = InstaClient()
 

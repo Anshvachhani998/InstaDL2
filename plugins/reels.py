@@ -4,19 +4,18 @@ from instagrapi import Client as InstaClient
 import os
 import re
 import requests
+import traceback  
+from info import LOG_CHANNEL
 
-# Initialize Instagram Client
 INSTAGRAM_SESSION_FILE = "session.json"
-insta_client = InstaClient()
 
-# Load session if exists
+insta_client = InstaClient()
 if os.path.exists(INSTAGRAM_SESSION_FILE):
     insta_client.load_settings(INSTAGRAM_SESSION_FILE)
 else:
     insta_client.login("harshvi_039", "Ansh123@123")
     insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
 
-# ✅ Instagram link detect karne ke liye regex
 INSTAGRAM_LINK_REGEX = r"(https?:\/\/www\.instagram\.com\/(?:p|reel|tv)\/[A-Za-z0-9_-]+)"
 
 def download_file(url, filename):
@@ -28,14 +27,14 @@ def download_file(url, filename):
         return filename
     return None
 
-@Client.on_message(filters.regex(INSTAGRAM_LINK_REGEX))  # ✅ Jab koi Instagram link send kare
+@Client.on_message(filters.regex(INSTAGRAM_LINK_REGEX))  
 def download_instagram_media(client, message):
-    url = re.search(INSTAGRAM_LINK_REGEX, message.text).group(0)  # ✅ Extract Instagram link
-    msg = message.reply_text("Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷")  # ✅ Show downloading message
+    url = re.search(INSTAGRAM_LINK_REGEX, message.text).group(0)  
+    msg = message.reply_text("Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷")  
 
     try:
-        media_pk = insta_client.media_pk_from_url(url)  # ✅ Get media_pk
-        media_info = insta_client.media_info(media_pk)  # ✅ Get media details
+        media_pk = insta_client.media_pk_from_url(url)  
+        media_info = insta_client.media_info(media_pk)  
         
         file_path = None
         if media_info.video_url:
@@ -45,23 +44,29 @@ def download_instagram_media(client, message):
             file_path = download_file(media_info.thumbnail_url, "photo.jpg")
             send_function = message.reply_photo
         else:
-            msg.edit_text("⚠ No media found in this post.")
-            return
+            raise ValueError("⚠ No media found in this post.")  
 
         if file_path:
-            # ✅ Caption & Button
-            caption = "ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴠɪᴅᴇᴏ 🎥\n\n ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
-            buttons = InlineKeyboardMarkup([
+            first_name = message.from_user.first_name if message.from_user.first_name else "Unknown User"
+            user_id = message.from_user.id
+            
+            caption_user = f"ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴠɪᴅᴇᴏ 🎥\n\nᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
+            buttons_user = InlineKeyboardMarkup([
                 [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
             ])
-            
-            # ✅ Send media
-            send_function(file_path, caption=caption, reply_markup=buttons, reply_to_message_id=message.id)
 
-            # ✅ Delete file after sending
+            caption_dump = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Sᴏᴜʀᴄᴇ URL:** [Cʟɪᴄᴋ Hᴇʀᴇ]({url})"
+
+            send_function(file_path, caption=caption_user, reply_markup=buttons_user, reply_to_message_id=message.id)
+            send_function(file_path, caption=caption_dump, chat_id=LOG_CHANNEL)
+
             os.remove(file_path)
         
-        msg.delete()  # ✅ Remove "Downloading..." message
+        msg.delete()  
 
+    except ValueError as ve:
+        msg.edit_text(str(ve))
     except Exception as e:
-        msg.edit_text(f"❌ Error: {str(e)}")
+        msg.edit_text("⚠ An error occurred while processing your request.")
+        error_details = f"❌ **Error Log:**\n\n**User:** {message.from_user.first_name} (`{message.from_user.id}`)\n**URL:** {url}\n**Error:** `{str(e)}`\n\n```{traceback.format_exc()}```"
+        client.send_message(LOG_CHANNEL, error_details)

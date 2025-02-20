@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from plugins.auth import insta_client, check_session
+from plugins.auth import insta_client
 
 @Client.on_message(filters.command("profile"))
 def profile_command(client, message):
@@ -8,12 +8,7 @@ def profile_command(client, message):
         return
 
     username = message.command[1]
-
-    # ✅ Pehle session check karega
-    if not check_session():
-        message.reply_text("⚠️ Instagram session expired! Please use /login to log in again.")
-        return
-
+    
     try:
         user_info = insta_client.user_info_by_username(username)
         profile_pic = user_info.profile_pic_url
@@ -32,3 +27,4 @@ def profile_command(client, message):
         message.reply_photo(profile_pic, caption=response_text)
     except Exception as e:
         message.reply_text(f"❌ Error: {str(e)}")
+

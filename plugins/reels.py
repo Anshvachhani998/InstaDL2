@@ -26,7 +26,7 @@ async def download_content(client, message):
     url = message.matches[0].group(0)
 
     # ✅ **Force Subscription Check**
-    if not await is_subscribed(client, user_id):
+    if not await is_subscribed(client, user_id, FORCE_CHANNEL):
         invite_link = await get_invite_link(client, FORCE_CHANNEL)
         if not invite_link:
             return await message.reply("🚨 **Error generating invite link! Contact admin.**")

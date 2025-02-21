@@ -74,7 +74,7 @@ async def check_subscription(client, callback_query):
         await message.edit_text("✅ **Thank you for joining! Downloading your reel now...**")
 
         # After joining, check if the user sent an Instagram link
-        last_message = await client.get_messages(user_id, limit=1)
+        last_message = await client.get_chat_history(user_id, limit=1)
         if last_message:
             last_message_text = last_message[0].text
             if last_message_text and re.match(INSTAGRAM_REGEX, last_message_text):  # Check if it's an Instagram URL

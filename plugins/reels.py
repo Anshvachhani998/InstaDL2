@@ -17,14 +17,15 @@ else:
     insta_client.login("harshvi_039", "Ansh123@123")
     insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
 
-INSTAGRAM_LINK_REGEX = r"(https?:\/\/www\.instagram\.com\/(?:p|reel|tv)\/[A-Za-z0-9_-]+)"
+# ✅ Only match Instagram "Reels" links
+INSTAGRAM_REEL_REGEX = r"(https?:\/\/www\.instagram\.com\/reel\/[A-Za-z0-9_-]+)"
 
-def download_file(url, user_id, media_type):
-    """✅ Download file with a unique name for each user."""
-    timestamp = int(time.time())  # Generate unique timestamp
-    filename = f"downloads/{user_id}_{timestamp}.{media_type}"  
+def download_file(url, user_id):
+    """✅ Download reel with a unique filename"""
+    timestamp = int(time.time())  
+    filename = f"downloads/{user_id}_{timestamp}.mp4"  
 
-    os.makedirs("downloads", exist_ok=True)  # ✅ Ensure directory exists
+    os.makedirs("downloads", exist_ok=True)  
 
     response = requests.get(url, stream=True)
     if response.status_code == 200:
@@ -33,70 +34,50 @@ def download_file(url, user_id, media_type):
                 file.write(chunk)
 
         if os.path.exists(filename) and os.path.getsize(filename) > 0:
-            return filename  # ✅ Return valid file path
+            return filename  
 
-    return None  # ✅ Return `None` if download fails
+    return None  
 
-@Client.on_message(filters.regex(INSTAGRAM_LINK_REGEX))  
-def download_instagram_media(client, message):
-    url = re.search(INSTAGRAM_LINK_REGEX, message.text).group(0)  
-    msg = message.reply_text("Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷")  
+@Client.on_message(filters.regex(INSTAGRAM_REEL_REGEX))  
+def download_instagram_reel(client, message):
+    url = re.search(INSTAGRAM_REEL_REGEX, message.text).group(0)  
+    msg = message.reply_text("📥 **Downloading Reel...**")  
 
     try:
         media_pk = insta_client.media_pk_from_url(url)  
         media_info = insta_client.media_info(media_pk)  
-        
+
         user_id = message.from_user.id
         first_name = message.from_user.first_name or "Unknown User"
 
-        file_path = None
-        is_video = False  
+        if not media_info.video_url:
+            raise ValueError("⚠ No video found in this reel.")  
 
-        if media_info.video_url:
-            file_path = download_file(media_info.video_url, user_id, "mp4")
-            is_video = True
-        elif media_info.thumbnail_url:
-            file_path = download_file(media_info.thumbnail_url, user_id, "jpg")
-        else:
-            raise ValueError("⚠ No media found in this post.")  
+        file_path = download_file(media_info.video_url, user_id)
 
         if file_path:
-            caption_user = "ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴠɪᴅᴇᴏ 🎥\n\nᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
+            caption_user = "🎥 **Here is your reel!**\n\n📌 *Provided by* @Ans_Links"
             buttons_user = InlineKeyboardMarkup([
-                [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
+                [InlineKeyboardButton("🔗 Update Channel", url="https://t.me/Ans_Links")]
             ])
 
-            caption_dump = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** {message.from_user.mention}\n📌 **Sᴏᴜʀᴄᴇ URL:** [Cʟɪᴄᴋ Hᴇʀᴇ]({url})"
+            caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})"
 
-            # ✅ Send media to user
-            if is_video:
-                client.send_video(
-                    chat_id=message.chat.id,
-                    video=file_path,
-                    caption=caption_user,
-                    reply_markup=buttons_user,
-                    reply_to_message_id=message.id
-                )
-                client.send_video(
-                    chat_id=LOG_CHANNEL,
-                    video=file_path,
-                    caption=caption_dump
-                )
-            else:
-                client.send_photo(
-                    chat_id=message.chat.id,
-                    photo=file_path,
-                    caption=caption_user,
-                    reply_markup=buttons_user,
-                    reply_to_message_id=message.id
-                )
-                client.send_photo(
-                    chat_id=LOG_CHANNEL,
-                    photo=file_path,
-                    caption=caption_dump
-                )
+            # ✅ Send reel video
+            client.send_video(
+                chat_id=message.chat.id,
+                video=file_path,
+                caption=caption_user,
+                reply_markup=buttons_user,
+                reply_to_message_id=message.id
+            )
+            client.send_video(
+                chat_id=LOG_CHANNEL,
+                video=file_path,
+                caption=caption_log
+            )
 
-            os.remove(file_path)  # ✅ Safe delete
+            os.remove(file_path)  
 
         msg.delete()  
 

@@ -49,26 +49,21 @@ def download_instagram_post(client, message):
         media_info = insta_client.media_info(media_pk)  
 
         user_id = message.from_user.id
-        first_name = message.from_user.first_name or "Unknown User"
+        first_name = message.from_user.first_name
 
-        resources = media_info.resources if hasattr(media_info, "resources") else [media_info]
+        file_path = None
+        is_video = False
 
-        file_paths = []  
+        # ✅ Check if it's a Video Post
+        if media_info.media_type == 2 and hasattr(media_info, "video_url"):
+            file_path = download_file(media_info.video_url, user_id, 0, is_video=True)
+            is_video = True
 
-        for index, resource in enumerate(resources):
-            is_video = False
-            file_path = None
+        # ✅ Check if it's an Image Post
+        elif media_info.media_type == 1 and hasattr(media_info, "display_url"):
+            file_path = download_file(media_info.display_url, user_id, 0, is_video=False)
 
-            if resource.media_type == 2 and hasattr(resource, "video_url"):  # ✅ Video
-                file_path = download_file(resource.video_url, user_id, index, is_video=True)
-                is_video = True
-            elif resource.media_type == 1 and hasattr(resource, "display_url"):  # ✅ Image
-                file_path = download_file(resource.display_url, user_id, index, is_video=False)
-            
-            if file_path:
-                file_paths.append((file_path, is_video))
-
-        if file_paths:
+        if file_path:
             caption_user = "🖼 Hᴇʀᴇ ɪꜱ Yᴏᴜʀ Pᴏꜱᴛ 📩\n\nᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
             buttons_user = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🔔 Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ", url="https://t.me/Ans_Links")]
@@ -76,35 +71,34 @@ def download_instagram_post(client, message):
 
             caption_log = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** **{message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Cʟɪᴄᴋ Hᴇʀᴇ]({url})**"
 
-            for file_path, is_video in file_paths:
-                if is_video:
-                    client.send_video(
-                        chat_id=message.chat.id,
-                        video=file_path,
-                        caption=caption_user,
-                        reply_markup=buttons_user,
-                        reply_to_message_id=message.id
-                    )
-                    client.send_video(
-                        chat_id=LOG_CHANNEL,
-                        video=file_path,
-                        caption=caption_log
-                    )
-                else:
-                    client.send_photo(
-                        chat_id=message.chat.id,
-                        photo=file_path,
-                        caption=caption_user,
-                        reply_markup=buttons_user,
-                        reply_to_message_id=message.id
-                    )
-                    client.send_photo(
-                        chat_id=LOG_CHANNEL,
-                        photo=file_path,
-                        caption=caption_log
-                    )
+            if is_video:
+                client.send_video(
+                    chat_id=message.chat.id,
+                    video=file_path,
+                    caption=caption_user,
+                    reply_markup=buttons_user,
+                    reply_to_message_id=message.id
+                )
+                client.send_video(
+                    chat_id=LOG_CHANNEL,
+                    video=file_path,
+                    caption=caption_log
+                )
+            else:
+                client.send_photo(
+                    chat_id=message.chat.id,
+                    photo=file_path,
+                    caption=caption_user,
+                    reply_markup=buttons_user,
+                    reply_to_message_id=message.id
+                )
+                client.send_photo(
+                    chat_id=LOG_CHANNEL,
+                    photo=file_path,
+                    caption=caption_log
+                )
 
-                os.remove(file_path)  
+            os.remove(file_path)  
 
         msg.delete()  
 
@@ -112,5 +106,6 @@ def download_instagram_post(client, message):
         msg.edit_text(str(ve))
     except Exception as e:
         msg.edit_text("⚠ An error occurred while processing your request.")
-        error_details = f"❌ **Error Log:**\n\n**User:** {first_name} (`{user_id}`)\n**URL:** {url}\n**Error:** `{str(e)}`\n\n```{traceback.format_exc()}```"
+        error_details = f"❌ **Error Log:**\n\n**User:** {first_name} (`{user_id}`)\n**URL:** {url}
+\n**Error:** `{str(e)}`\n\n```{traceback.format_exc()}```"
         client.send_message(LOG_CHANNEL, error_details)

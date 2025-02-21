@@ -64,11 +64,17 @@ async def download_content(client, message):
         await client.send_message(LOG_CHANNEL, error_message)
         await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
 
-# ✅ **Callback handler for force join check**
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):
     user_id = callback_query.from_user.id
+    message = callback_query.message
+
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
-        await callback_query.message.edit_text("✅ **Thank you for joining! Now send an Instagram link to download.**")
+        await message.edit_text("✅ **Thank you for joining! Downloading your reel now...**")
+
+        # Extract URL from the original message
+        url = message.reply_to_message.text if message.reply_to_message else None
+        if url:
+            await download_content(client, message.reply_to_message)  # Trigger download function
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

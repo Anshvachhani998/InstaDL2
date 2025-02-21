@@ -1,8 +1,8 @@
 import asyncio
 import logging
-from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
+from pyrogram.errors import InputUserDeactivated, UserNotParticipant, FloodWait, UserIsBlocked, PeerIdInvalid
 from database.db import db
-
+from info import FORCE_CHANNEL
 
 from pyrogram import Client
 
@@ -14,14 +14,17 @@ async def get_invite_link(client: Client, channel_id: str):
         print(f"Error generating invite link: {e}")
         return None
 
-async def is_subscribed(client: Client, user_id: int, channel_id: str):
-    """Check if user is subscribed to the force join channel"""
+async def is_subscribed(client: Client, user_id: int):
     try:
-        member = await client.get_chat_member(channel_id, user_id)
-        return member.status in ["member", "administrator", "creator"]
-    except Exception:
-        return False  # If error, assume not subscribed
-
+        user = await client.get_chat_member(FORCE_CHANNEL, user_id)
+    except UserNotParticipant:
+        pass
+    except Exception as e:
+        logger.exception(e)
+    else:
+        if user.status != 'kicked':
+            return True
+    return False
 
 
 async def broadcast_messages(user_id, message):

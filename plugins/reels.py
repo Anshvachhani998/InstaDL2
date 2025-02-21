@@ -23,7 +23,7 @@ def fetch_video_url(instagram_url):
         return None
 
 
-INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel|tv|p)/[^\s]+)"
+INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(?:reel|tv|p)/[^\s?]+)"
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))
 async def download_content(client, message):

@@ -32,11 +32,13 @@ async def download_content(client, message):
             return await message.reply("🚨 **Error generating invite link! Contact admin.**")
 
         buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔔 Join Channel", url=invite_link)],
-            [InlineKeyboardButton("✅ Done", callback_data="check_sub")]
+            [InlineKeyboardButton("✨ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ 🔥", url=invite_link)],
+            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʀʏ ✅", callback_data="check_sub")]
         ])
         return await message.reply(
-            "**🚫 You must join our channel to use this bot!**",
+            "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
+            "🔹 Tᴏ ᴜsᴇ ᴛʜɪs Bᴏᴛ, ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏғғɪᴄɪᴀʟ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ.\n"
+            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ.\n\n",         
             reply_markup=buttons
         )
 

@@ -68,13 +68,12 @@ async def download_content(client, message):
 async def check_subscription(client, callback_query):
     user_id = callback_query.from_user.id
     message = callback_query.message
+    original_message = message.reply_to_message  # Original message jisme Instagram link hai
 
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
         await message.edit_text("✅ **Thank you for joining! Downloading your reel now...**")
 
-        # Extract URL from the original message
-        url = message.reply_to_message.text if message.reply_to_message else None
-        if url:
-            await download_content(client, message.reply_to_message)  # Trigger download function
+        if original_message:  # Check karein ki reply message exist karta hai ya nahi
+            await download_content(client, original_message)  # Download function call karein
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

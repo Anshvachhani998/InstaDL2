@@ -68,12 +68,18 @@ async def download_content(client, message):
 async def check_subscription(client, callback_query):
     user_id = callback_query.from_user.id
     message = callback_query.message
-    original_message = message.reply_to_message  # Original message jisme Instagram link hai
+    original_message = message.reply_to_message  # Original message containing the Instagram URL
 
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
         await message.edit_text("✅ **Thank you for joining! Downloading your reel now...**")
 
-        if original_message:  # Check karein ki reply message exist karta hai ya nahi
-            await download_content(client, original_message)  # Download function call karein
+        # After joining, check if the user sent an Instagram link
+        last_message = await client.get_messages(user_id, limit=1)
+        if last_message:
+            last_message_text = last_message[0].text
+            if last_message_text and re.match(INSTAGRAM_REGEX, last_message_text):  # Check if it's an Instagram URL
+                await download_content(client, last_message[0])  # Run the download process for this URL
+            else:
+                await callback_query.answer("⚠ No Instagram URL found in your last message.", show_alert=True)
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

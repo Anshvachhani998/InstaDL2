@@ -56,22 +56,34 @@ def download_instagram_post(client, message):
         # ✅ Multiple Images/Videos Post
         if media_info.resources:
             for index, resource in enumerate(media_info.resources):
-                if resource.video_url:
+                file_path = None
+                is_video = False
+
+                if resource.media_type == 2 and hasattr(resource, "video_url"):  # ✅ Video
                     file_path = download_file(resource.video_url, user_id, index, is_video=True)
-                else:
-                    file_path = download_file(resource.url, user_id, index, is_video=False)  # ✅ Corrected Image URL
+                    is_video = True
+                elif resource.media_type == 1 and hasattr(resource, "thumbnail_url"):  # ✅ Image
+                    file_path = download_file(resource.thumbnail_url, user_id, index, is_video=False)
 
                 if file_path:
-                    media_items.append((file_path, resource.video_url is not None))
+                    media_items.append((file_path, is_video))
 
         # ✅ Single Image or Video Post
         else:
-            if media_info.video_url:
-                media_items.append((download_file(media_info.video_url, user_id, 0, is_video=True), True))
-            elif media_info.media_type == 1:  # ✅ Correct way to detect images
-                media_items.append((download_file(media_info.url, user_id, 0, is_video=False), False))
-            else:
-                raise ValueError("⚠ No media found in this post.")  
+            file_path = None
+            is_video = False
+
+            if media_info.media_type == 2 and hasattr(media_info, "video_url"):
+                file_path = download_file(media_info.video_url, user_id, 0, is_video=True)
+                is_video = True
+            elif media_info.media_type == 1 and hasattr(media_info, "thumbnail_url"):
+                file_path = download_file(media_info.thumbnail_url, user_id, 0, is_video=False)
+
+            if file_path:
+                media_items.append((file_path, is_video))
+
+        if not media_items:
+            raise ValueError("⚠ No media found in this post.")  
 
         caption_user = "🖼 **Here is your post!**\n\n📌 *Provided by* @Ans_Links"
         buttons_user = InlineKeyboardMarkup([

@@ -14,17 +14,17 @@ async def get_invite_link(client: Client, channel_id: str):
         print(f"Error generating invite link: {e}")
         return None
 
-async def is_subscribed(client: Client, user_id: int):
+async def is_subscribed(client: Client, user_id: int, channel_id: str):
     try:
-        user = await client.get_chat_member(FORCE_CHANNEL, user_id)
-    except UserNotParticipant:
-        pass
-    except Exception as e:
-        logger.exception(e)
-    else:
+        user = await client.get_chat_member(channel_id, user_id)
         if user.status != 'kicked':
             return True
-    return False
+    except UserNotParticipant:
+        return False
+    except Exception as e:
+        logging.exception(e)
+        return False
+
 
 
 async def broadcast_messages(user_id, message):

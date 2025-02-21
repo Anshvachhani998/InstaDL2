@@ -16,9 +16,7 @@ def generate_filename(user_id):
 def download_instagram_content(url, filename):
     ydl_opts = {
         'outtmpl': filename,
-        'quiet': True,
-        'format': 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]',  # Best video + best audio
-        'merge_output_format': 'mp4',  # Merge into MP4
+        'quiet': True
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:

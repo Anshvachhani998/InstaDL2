@@ -5,7 +5,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 async def start(client, message):
     buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("❓ Help", callback_data="help"), InlineKeyboardButton("ℹ️ About", callback_data="about")],
-        [InlineKeyboardButton("📢 Updates Channel", url="https://t.me/YOUR_CHANNEL")]
+        [InlineKeyboardButton("📢 Updates Channel", url="https://t.me/AnS_Bots")]
     ])
     
     await message.reply_text(
@@ -19,6 +19,24 @@ async def start(client, message):
         reply_markup=buttons
     )
 
+@Client.on_callback_query(filters.regex("start"))
+async def start_hendler(client, callback_query):
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("❓ Help", callback_data="help"), InlineKeyboardButton("ℹ️ About", callback_data="about")],
+        [InlineKeyboardButton("📢 Updates Channel", url="https://t.me/AnS_Bots")]
+    ])
+    
+    await callback_query.message.edit_text(
+        "💖✨ **Welcome to the Ultimate Instagram Downloader!** ✨💖\n\n"
+        "🚀 **Fastest Instagram Reels, Posts & IGTV Video Downloader!** 🎥\n"
+        "💫 Just send any Instagram link & get **high-speed downloads instantly!**\n\n"
+        "⚡ **Blazing Fast Downloads**\n"
+        "✅ **No Watermark, Full HD Quality**\n"
+        "🔹 **Unlimited & Secure**\n\n"
+        "💖 Enjoy Hassle-Free Downloads! 💖",
+        reply_markup=buttons
+    )
+    
 @Client.on_callback_query(filters.regex("help"))
 async def help(client, callback_query):
     buttons = InlineKeyboardMarkup([
@@ -30,7 +48,7 @@ async def help(client, callback_query):
         "📌 Just send any Instagram Reel, Post, or IGTV link here.\n"
         "🔹 The bot will instantly download & send it to you in **HD quality**.\n"
         "🚀 **Super Fast & Secure!**\n\n"
-        "🎥 **For manual download, use** `/dl` **command.**\n\n" 
+        "🎥 **For manual download, use** `/dl <link>` **command.**\n\n" 
         "💖 **Enjoy hassle-free downloads!**",
         reply_markup=buttons
     )
@@ -43,14 +61,12 @@ async def about(client, callback_query):
     
     await callback_query.message.edit_text(
         "**ℹ️ About This Bot**\n\n"
-        "💎 **Developed By:** [Your Name](https://t.me/YOUR_USERNAME)\n"
+        "💎 **Developed By:** [AnS </> Team](https://t.me/AnS_team)\n"
         "🚀 **Purpose:** High-speed Instagram video downloads\n"
         "🎥 **Supports:** Reels, Posts, IGTV\n"
         "🔹 **No watermark, HD quality**\n\n"
-        "💖 Enjoy & Share!",
+        "**💖 Enjoy & Share!**",
         reply_markup=buttons
     )
 
-@Client.on_callback_query(filters.regex("start"))
-async def back_to_start(client, callback_query):
-    await start(client, callback_query.message)
+

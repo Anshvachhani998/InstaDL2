@@ -1,7 +1,5 @@
 import motor.motor_asyncio
-import os
 from info import MONGO_URI, MONGO_NAME
-
 
 class Database:
     def __init__(self):
@@ -9,7 +7,7 @@ class Database:
         self.db = self.client[MONGO_NAME]
         self.col = self.db["users"]
 
-   def new_user(self, id, name):
+    def new_user(self, id, name):
         return {"id": int(id), "name": name}
        
     async def add_user(self, id, name):
@@ -19,6 +17,5 @@ class Database:
     async def is_user_exist(self, id):      
         user = await self.col.find_one({"id": int(id)})
         return bool(user)
-
 
 db = Database()

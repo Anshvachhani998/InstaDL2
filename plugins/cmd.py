@@ -1,5 +1,8 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from info import LOG_CHANNEL
+from database import db
+
 
 @Client.on_message(filters.command("start"))
 async def start(client, message):
@@ -7,7 +10,12 @@ async def start(client, message):
         [InlineKeyboardButton("❓ Help", callback_data="help"), InlineKeyboardButton("ℹ️ About", callback_data="about")],
         [InlineKeyboardButton("📢 Updates Channel", url="https://t.me/AnS_Bots")]
     ])
-    
+    if not await db.is_user_exist(user_id):
+        await db.add_user(message.from_user.id, message.from_user.first_name)
+        await client.send_message(
+            LOG_CHANNEL, 
+            f"**#NewUser 🔻**\n**ID -> `{message.from_user.id}`**\n**Name -> {message.from_user.mention}**"
+        )
     await message.reply_text(
         "💖✨ **Welcome to the Ultimate Instagram Downloader!** ✨💖\n\n"
         "🚀 **Fastest Instagram Reels, Posts & IGTV Video Downloader!** 🎥\n"

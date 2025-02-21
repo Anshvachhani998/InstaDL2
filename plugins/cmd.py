@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from info import LOG_CHANNEL
-from database import db
+from database.db import db
 
 
 @Client.on_message(filters.command("start"))

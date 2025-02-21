@@ -2,9 +2,10 @@ import os
 from instagrapi import Client as InstaClient
 from instagrapi.exceptions import LoginRequired
 
-SESSION_FILE = "session.json" 
 INSTAGRAM_SESSION_FILE = "session.json"
+
 insta_client = InstaClient()
+insta_client.delay_range = [3, 6]  
 
 # ✅ Pehle session file load karne ki koshish karenge
 if os.path.exists(INSTAGRAM_SESSION_FILE):

@@ -17,14 +17,14 @@ else:
     insta_client.login("harshvi_039", "Ansh123@123")
     insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
 
-# ✅ Match only Instagram "Post" links
+# ✅ Instagram Post URL Regex
 INSTAGRAM_POST_REGEX = r"(https?:\/\/www\.instagram\.com\/p\/[A-Za-z0-9_-]+)"
 
 def download_file(url, user_id, index, is_video):
-    """✅ Download media with unique filename"""
+    """✅ Download media with a unique filename"""
     timestamp = int(time.time())  
     ext = "mp4" if is_video else "jpg"
-    filename = f"downloads/{user_id}_{timestamp}_{index}.{ext}"  
+    filename = f"downloads/{user_id}_{index}_{timestamp}.{ext}"  
 
     os.makedirs("downloads", exist_ok=True)  
 
@@ -42,8 +42,8 @@ def download_file(url, user_id, index, is_video):
 @Client.on_message(filters.regex(INSTAGRAM_POST_REGEX))  
 def download_instagram_post(client, message):
     url = re.search(INSTAGRAM_POST_REGEX, message.text).group(0)  
-    msg = message.reply_text("📥 **Downloading Post...**")  
-
+    msg = message.reply_text("📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ...")  
+    
     try:
         media_pk = insta_client.media_pk_from_url(url)  
         media_info = insta_client.media_info(media_pk)  
@@ -51,77 +51,60 @@ def download_instagram_post(client, message):
         user_id = message.from_user.id
         first_name = message.from_user.first_name or "Unknown User"
 
-        media_items = []
+        resources = media_info.resources if hasattr(media_info, "resources") else [media_info]
 
-        # ✅ Multiple Images/Videos Post
-        if media_info.resources:
-            for index, resource in enumerate(media_info.resources):
-                file_path = None
-                is_video = False
+        file_paths = []  
 
-                if resource.media_type == 2 and hasattr(resource, "video_url"):  # ✅ Video
-                    file_path = download_file(resource.video_url, user_id, index, is_video=True)
-                    is_video = True
-                elif resource.media_type == 1 and hasattr(resource, "thumbnail_url"):  # ✅ Image
-                    file_path = download_file(resource.thumbnail_url, user_id, index, is_video=False)
-
-                if file_path:
-                    media_items.append((file_path, is_video))
-
-        # ✅ Single Image or Video Post
-        else:
-            file_path = None
+        for index, resource in enumerate(resources):
             is_video = False
+            file_path = None
 
-            if media_info.media_type == 2 and hasattr(media_info, "video_url"):
-                file_path = download_file(media_info.video_url, user_id, 0, is_video=True)
+            if resource.media_type == 2 and hasattr(resource, "video_url"):  # ✅ Video
+                file_path = download_file(resource.video_url, user_id, index, is_video=True)
                 is_video = True
-            elif media_info.media_type == 1 and hasattr(media_info, "thumbnail_url"):
-                file_path = download_file(media_info.thumbnail_url, user_id, 0, is_video=False)
-
+            elif resource.media_type == 1 and hasattr(resource, "display_url"):  # ✅ Image
+                file_path = download_file(resource.display_url, user_id, index, is_video=False)
+            
             if file_path:
-                media_items.append((file_path, is_video))
+                file_paths.append((file_path, is_video))
 
-        if not media_items:
-            raise ValueError("⚠ No media found in this post.")  
+        if file_paths:
+            caption_user = "🖼 Hᴇʀᴇ ɪꜱ Yᴏᴜʀ Pᴏꜱᴛ 📩\n\nᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
+            buttons_user = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔔 Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ", url="https://t.me/Ans_Links")]
+            ])
 
-        caption_user = "🖼 **Here is your post!**\n\n📌 *Provided by* @Ans_Links"
-        buttons_user = InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔗 Update Channel", url="https://t.me/Ans_Links")]
-        ])
+            caption_log = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** **{message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Cʟɪᴄᴋ Hᴇʀᴇ]({url})**"
 
-        caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})"
+            for file_path, is_video in file_paths:
+                if is_video:
+                    client.send_video(
+                        chat_id=message.chat.id,
+                        video=file_path,
+                        caption=caption_user,
+                        reply_markup=buttons_user,
+                        reply_to_message_id=message.id
+                    )
+                    client.send_video(
+                        chat_id=LOG_CHANNEL,
+                        video=file_path,
+                        caption=caption_log
+                    )
+                else:
+                    client.send_photo(
+                        chat_id=message.chat.id,
+                        photo=file_path,
+                        caption=caption_user,
+                        reply_markup=buttons_user,
+                        reply_to_message_id=message.id
+                    )
+                    client.send_photo(
+                        chat_id=LOG_CHANNEL,
+                        photo=file_path,
+                        caption=caption_log
+                    )
 
-        # ✅ Send each media file
-        for file_path, is_video in media_items:
-            if is_video:
-                client.send_video(
-                    chat_id=message.chat.id,
-                    video=file_path,
-                    caption=caption_user,
-                    reply_markup=buttons_user,
-                    reply_to_message_id=message.id
-                )
-                client.send_video(
-                    chat_id=LOG_CHANNEL,
-                    video=file_path,
-                    caption=caption_log
-                )
-            else:
-                client.send_photo(
-                    chat_id=message.chat.id,
-                    photo=file_path,
-                    caption=caption_user,
-                    reply_markup=buttons_user,
-                    reply_to_message_id=message.id
-                )
-                client.send_photo(
-                    chat_id=LOG_CHANNEL,
-                    photo=file_path,
-                    caption=caption_log
-                )
-
-            os.remove(file_path)  
+                os.remove(file_path)  
 
         msg.delete()  
 

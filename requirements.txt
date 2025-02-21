@@ -10,3 +10,4 @@ urllib3==2.0.3
 yt-dlp>=2025.02.19
 ffmpeg-python
 ffmpeg
+motor

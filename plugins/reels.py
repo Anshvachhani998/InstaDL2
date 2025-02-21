@@ -5,6 +5,7 @@ import os
 import re
 import requests
 import traceback  
+import time  
 from info import LOG_CHANNEL
 
 INSTAGRAM_SESSION_FILE = "session.json"
@@ -18,14 +19,23 @@ else:
 
 INSTAGRAM_LINK_REGEX = r"(https?:\/\/www\.instagram\.com\/(?:p|reel|tv)\/[A-Za-z0-9_-]+)"
 
-def download_file(url, filename):
+def download_file(url, user_id, media_type):
+    """✅ Download file with a unique name for each user."""
+    timestamp = int(time.time())  # Generate unique timestamp
+    filename = f"downloads/{user_id}_{timestamp}.{media_type}"  
+
+    os.makedirs("downloads", exist_ok=True)  # ✅ Ensure directory exists
+
     response = requests.get(url, stream=True)
     if response.status_code == 200:
         with open(filename, "wb") as file:
             for chunk in response.iter_content(1024):
                 file.write(chunk)
-        return filename
-    return None
+
+        if os.path.exists(filename) and os.path.getsize(filename) > 0:
+            return filename  # ✅ Return valid file path
+
+    return None  # ✅ Return `None` if download fails
 
 @Client.on_message(filters.regex(INSTAGRAM_LINK_REGEX))  
 def download_instagram_media(client, message):
@@ -36,27 +46,27 @@ def download_instagram_media(client, message):
         media_pk = insta_client.media_pk_from_url(url)  
         media_info = insta_client.media_info(media_pk)  
         
+        user_id = message.from_user.id
+        first_name = message.from_user.first_name or "Unknown User"
+
         file_path = None
-        is_video = False  # ✅ Track media type
+        is_video = False  
 
         if media_info.video_url:
-            file_path = download_file(media_info.video_url, "video.mp4")
+            file_path = download_file(media_info.video_url, user_id, "mp4")
             is_video = True
         elif media_info.thumbnail_url:
-            file_path = download_file(media_info.thumbnail_url, "photo.jpg")
+            file_path = download_file(media_info.thumbnail_url, user_id, "jpg")
         else:
             raise ValueError("⚠ No media found in this post.")  
 
         if file_path:
-            first_name = message.from_user.mention
-            user_id = message.from_user.id
-            
             caption_user = "ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴠɪᴅᴇᴏ 🎥\n\nᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
             buttons_user = InlineKeyboardMarkup([
                 [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
             ])
 
-            caption_dump = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** {message.from_user.mention} (Telegram ID: `{user_id}`)\n📌 **Sᴏᴜʀᴄᴇ URL:** [Cʟɪᴄᴋ Hᴇʀᴇ]({url})"
+            caption_dump = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** {message.from_user.mention}\n📌 **Sᴏᴜʀᴄᴇ URL:** [Cʟɪᴄᴋ Hᴇʀᴇ]({url})"
 
             # ✅ Send media to user
             if is_video:
@@ -86,13 +96,13 @@ def download_instagram_media(client, message):
                     caption=caption_dump
                 )
 
-            os.remove(file_path)
-        
+            os.remove(file_path)  # ✅ Safe delete
+
         msg.delete()  
 
     except ValueError as ve:
         msg.edit_text(str(ve))
     except Exception as e:
         msg.edit_text("⚠ An error occurred while processing your request.")
-        error_details = f"❌ **Error Log:**\n\n**User:** {message.from_user.mention} (`{message.from_user.id}`)\n**URL:** {url}\n**Error:** `{str(e)}`\n\n```{traceback.format_exc()}```"
+        error_details = f"❌ **Error Log:**\n\n**User:** {first_name} (`{user_id}`)\n**URL:** {url}\n**Error:** `{str(e)}`\n\n```{traceback.format_exc()}```"
         client.send_message(LOG_CHANNEL, error_details)

@@ -15,9 +15,7 @@ app = Client
 def download_instagram_content(url):
     ydl_opts = {
         'outtmpl': 'downloaded_content.%(ext)s',
-        'quiet': True,
-        'username': 'loveis8507',
-        'password': 'Ansh12345@23',
+        'quiet': True
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:

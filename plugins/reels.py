@@ -77,9 +77,7 @@ async def check_subscription(client, callback_query):
     message = callback_query.message
 
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
-        await message.edit_text("✅ **Thank you for joining! Downloading your reel now...**")
-        
-        # Trigger the download using the extracted URL and user_id
-        await download_content(client, message.reply_to_message, url, user_id)  # Pass URL and user_id
+        await message.edit_text("**✅Thank you for joining! Now send an Instagram link to download.**")        
+       
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

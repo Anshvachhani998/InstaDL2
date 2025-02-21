@@ -18,4 +18,17 @@ class Database:
         user = await self.col.find_one({"id": int(id)})
         return bool(user)
 
+    async def get_all_users(self):
+        return self.col.find({})
+        
+    async def total_users_count(self):
+        count = await self.col.count_documents({})
+        return count
+    
+    async def delete_user(self, user_id):
+        await self.col.delete_many({'id': int(user_id)})
+
+    async def block_user(self, user_id):
+        await self.col.delete_many({'id': int(user_id)})
+
 db = Database()

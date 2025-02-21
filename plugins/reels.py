@@ -41,8 +41,8 @@ def download_file(url, user_id):
 @Client.on_message(filters.regex(INSTAGRAM_REEL_REGEX))  
 def download_instagram_reel(client, message):
     url = re.search(INSTAGRAM_REEL_REGEX, message.text).group(0)  
-    msg = message.reply_text("📥 **Downloading Reel...**")  
-
+    msg = message.reply_text("Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷")
+    
     try:
         media_pk = insta_client.media_pk_from_url(url)  
         media_info = insta_client.media_info(media_pk)  
@@ -56,7 +56,7 @@ def download_instagram_reel(client, message):
         file_path = download_file(media_info.video_url, user_id)
 
         if file_path:
-            caption_user = "🎥 **Here is your reel!**\n\n📌 *Provided by* @Ans_Links"
+            caption_user = "ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴠɪᴅᴇᴏ 🎥\n\nᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links"
             buttons_user = InlineKeyboardMarkup([
                 [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
             ])

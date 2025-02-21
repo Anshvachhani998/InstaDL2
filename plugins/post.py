@@ -42,8 +42,8 @@ def download_file(url, user_id, is_video):
 @Client.on_message(filters.regex(INSTAGRAM_POST_REGEX))  
 def download_instagram_post(client, message):
     url = re.search(INSTAGRAM_POST_REGEX, message.text).group(0)  
-    msg = message.reply_text("📥 **Downloading Post...**")  
-
+    msg = message.reply_text("Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷")
+    
     try:
         media_pk = insta_client.media_pk_from_url(url)  
         media_info = insta_client.media_info(media_pk)  
@@ -63,13 +63,13 @@ def download_instagram_post(client, message):
             raise ValueError("⚠ No media found in this post.")  
 
         if file_path:
-            caption_user = "🖼 **Here is your post!**\n\n📌 *Provided by* @Ans_Links"
+            caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴘᴏꜱᴛ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links**"
             buttons_user = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔗 Update Channel", url="https://t.me/Ans_Links")]
+                [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
             ])
 
-            caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})"
-
+            caption_log = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** **{message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Cʟɪᴄᴋ Hᴇʀᴇ]({url})**"
+            
             # ✅ Send media to user
             if is_video:
                 client.send_video(

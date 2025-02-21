@@ -1,5 +1,6 @@
 import random
 import requests
+import re
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
@@ -20,28 +21,8 @@ def fetch_video_url(instagram_url):
 
 INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel|tv|p)/[^\s?]+)"
 
-@app.on_message(filters.regex(INSTAGRAM_REGEX))
-async def download_content(client, message):
-    user_id = message.from_user.id
-    url = message.matches[0].group(0)
-
-    # ✅ **Force Subscription Check**
-    if not await is_subscribed(client, user_id, FORCE_CHANNEL):
-        invite_link = await get_invite_link(client, FORCE_CHANNEL)
-        if not invite_link:
-            return await message.reply("🚨 **Error generating invite link! Contact admin.**")
-
-        buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("✨ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ 🔥", url=invite_link)],
-            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʀʏ ✅", callback_data="check_sub")]
-        ])
-        return await message.reply(
-            "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
-            "🔹 Tᴏ ᴜsᴇ ᴛʜɪs Bᴏᴛ, ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏғғɪᴄɪᴀʟ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ.\n"
-            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ.\n\n",         
-            reply_markup=buttons
-        )
-
+async def download_content(client, message, url, user_id):
+    """Function to download the Instagram content"""
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
         
@@ -64,21 +45,41 @@ async def download_content(client, message):
         await client.send_message(LOG_CHANNEL, error_message)
         await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
 
+@app.on_message(filters.regex(INSTAGRAM_REGEX))
+async def handle_instagram_link(client, message):
+    user_id = message.from_user.id
+    url = message.matches[0].group(0)
+
+    # ✅ **Force Subscription Check**
+    if not await is_subscribed(client, user_id, FORCE_CHANNEL):
+        invite_link = await get_invite_link(client, FORCE_CHANNEL)
+        if not invite_link:
+            return await message.reply("🚨 **Error generating invite link! Contact admin.**")
+
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("✨ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ 🔥", url=invite_link)],
+            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʀʏ ✅", callback_data=f"check_sub:{user_id}:{url}")]
+        ])
+        return await message.reply(
+            "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
+            "🔹 Tᴏ ᴜsᴇ ᴛʜɪs Bᴏᴛ, ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏғғɪᴄɪᴀʟ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ.\n"
+            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ.\n\n",         
+            reply_markup=buttons
+        )
+
+    # If the user is subscribed, proceed to download directly
+    await download_content(client, message, url, user_id)
+
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):
     user_id = callback_query.from_user.id
+    url = callback_query.data.split(":")[2]  # Extract URL from callback data
     message = callback_query.message
-    original_message = message.reply_to_message  # Original message containing the Instagram URL
 
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
         await message.edit_text("✅ **Thank you for joining! Downloading your reel now...**")
-
-        # After joining, check if the user sent an Instagram link
-        async for last_message in client.get_chat_history(user_id, limit=1):
-            last_message_text = last_message.text
-            if last_message_text and re.match(INSTAGRAM_REGEX, last_message_text):  # Check if it's an Instagram URL
-                await download_content(client, last_message)  # Run the download process for this URL
-            else:
-                await callback_query.answer("⚠ No Instagram URL found in your last message.", show_alert=True)
+        
+        # Trigger the download using the extracted URL and user_id
+        await download_content(client, message.reply_to_message, url, user_id)  # Pass URL and user_id
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

@@ -13,7 +13,7 @@ async def start(client, message):
         [InlineKeyboardButton("❓ Help", callback_data="help"), InlineKeyboardButton("ℹ️ About", callback_data="about")],
         [InlineKeyboardButton("📢 Updates Channel", url="https://t.me/AnS_Bots")]
     ])
-    if not await db.is_user_exist(user_id):
+    if not await db.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         await client.send_message(
             LOG_CHANNEL, 

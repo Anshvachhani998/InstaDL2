@@ -17,14 +17,14 @@ else:
     insta_client.login("harshvi_039", "Ansh123@123")
     insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
 
-# ✅ Only match Instagram "Post" links
+# ✅ Match only Instagram "Post" links
 INSTAGRAM_POST_REGEX = r"(https?:\/\/www\.instagram\.com\/p\/[A-Za-z0-9_-]+)"
 
-def download_file(url, user_id, is_video):
-    """✅ Download post media with a unique filename"""
+def download_file(url, user_id, index, is_video):
+    """✅ Download media with unique filename"""
     timestamp = int(time.time())  
     ext = "mp4" if is_video else "jpg"
-    filename = f"downloads/{user_id}_{timestamp}.{ext}"  
+    filename = f"downloads/{user_id}_{timestamp}_{index}.{ext}"  
 
     os.makedirs("downloads", exist_ok=True)  
 
@@ -42,8 +42,8 @@ def download_file(url, user_id, is_video):
 @Client.on_message(filters.regex(INSTAGRAM_POST_REGEX))  
 def download_instagram_post(client, message):
     url = re.search(INSTAGRAM_POST_REGEX, message.text).group(0)  
-    msg = message.reply_text("Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷")
-    
+    msg = message.reply_text("📥 **Downloading Post...**")  
+
     try:
         media_pk = insta_client.media_pk_from_url(url)  
         media_info = insta_client.media_info(media_pk)  
@@ -51,26 +51,37 @@ def download_instagram_post(client, message):
         user_id = message.from_user.id
         first_name = message.from_user.first_name or "Unknown User"
 
-        file_path = None
-        is_video = False
+        media_items = []
 
-        if media_info.video_url:
-            file_path = download_file(media_info.video_url, user_id, is_video=True)
-            is_video = True
-        elif media_info.thumbnail_url:
-            file_path = download_file(media_info.thumbnail_url, user_id, is_video=False)
+        # ✅ Multiple Images/Videos Post
+        if media_info.resources:
+            for index, resource in enumerate(media_info.resources):
+                if resource.video_url:
+                    file_path = download_file(resource.video_url, user_id, index, is_video=True)
+                else:
+                    file_path = download_file(resource.url, user_id, index, is_video=False)  # ✅ Corrected Image URL
+
+                if file_path:
+                    media_items.append((file_path, resource.video_url is not None))
+
+        # ✅ Single Image or Video Post
         else:
-            raise ValueError("⚠ No media found in this post.")  
+            if media_info.video_url:
+                media_items.append((download_file(media_info.video_url, user_id, 0, is_video=True), True))
+            elif media_info.media_type == 1:  # ✅ Correct way to detect images
+                media_items.append((download_file(media_info.url, user_id, 0, is_video=False), False))
+            else:
+                raise ValueError("⚠ No media found in this post.")  
 
-        if file_path:
-            caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴘᴏꜱᴛ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links**"
-            buttons_user = InlineKeyboardMarkup([
-                [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
-            ])
+        caption_user = "🖼 **Here is your post!**\n\n📌 *Provided by* @Ans_Links"
+        buttons_user = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔗 Update Channel", url="https://t.me/Ans_Links")]
+        ])
 
-            caption_log = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** **{message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Cʟɪᴄᴋ Hᴇʀᴇ]({url})**"
-            
-            # ✅ Send media to user
+        caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})"
+
+        # ✅ Send each media file
+        for file_path, is_video in media_items:
             if is_video:
                 client.send_video(
                     chat_id=message.chat.id,
@@ -108,4 +119,3 @@ def download_instagram_post(client, message):
         msg.edit_text("⚠ An error occurred while processing your request.")
         error_details = f"❌ **Error Log:**\n\n**User:** {first_name} (`{user_id}`)\n**URL:** {url}\n**Error:** `{str(e)}`\n\n```{traceback.format_exc()}```"
         client.send_message(LOG_CHANNEL, error_details)
-      

@@ -31,7 +31,7 @@ async def download_content(client, message):
     user_id = message.from_user.id
 
     try:
-        downloading_msg = await message.reply("**Fᴇᴛᴄʜɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ... 🎥**")
+        downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
         
         video_url = fetch_video_url(url)
         if not video_url:

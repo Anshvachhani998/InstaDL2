@@ -7,5 +7,5 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "6538627123:AAEy4JiDRG_OrA3AJn8t-YIKy_N_3Z6Bs
 LOG_CHANNEL = int(os.getenv("LOG_CHANNEL", "-1002379643238"))
 DUMP_CHANNEL = int(os.getenv("DUMP_CHANNEL", "-1002379643238"))
 PORT = int(os.getenv("PORT", "8080"))
-INSTAGRAM_USERNAME = "harshvi_039"
-INSTAGRAM_PASSWORD = "Ansh123@123"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://Ansh089:Ansh089@cluster0.y8tpouc.mongodb.net/?retryWrites=true&w=majority")
+MONGO_NAME = os.getenv("MONGO_NAME", "InstaDL")

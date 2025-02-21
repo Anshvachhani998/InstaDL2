@@ -2,9 +2,9 @@ import random
 import requests
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from info import DUMP_CHANNEL
+from info import DUMP_CHANNEL, LOG_CHANNEL
 
-app = Client
+app = Client("instagram_bot")
 
 API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
 
@@ -22,8 +22,8 @@ def fetch_video_url(instagram_url):
     except Exception:
         return None
 
-# Instagram Reels/Post/Story Links Detect Karne Ka Regex
-INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel|tv)/[^\s]+)"
+
+INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel|tv|p)/[^\s]+)"
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))
 async def download_content(client, message):
@@ -35,7 +35,7 @@ async def download_content(client, message):
         
         video_url = fetch_video_url(url)
         if not video_url:
-            await downloading_msg.edit("❌ Failed to fetch video link.")
+            await downloading_msg.edit(f"**⚠ No reel found in this url**")
             return
         
         caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links**"
@@ -44,8 +44,14 @@ async def download_content(client, message):
         ])
 
         await message.reply_video(video_url, caption=caption_user, reply_markup=buttons)
-        await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Downloaded by {message.from_user.mention}**\n📌 **Source URL: [Click Here]({url})**")
+        await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")
         await downloading_msg.delete()
 
     except Exception as e:
-        await message.reply(f"❌ Error: {str(e)}")
+        error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
+        
+
+        await client.send_message(LOG_CHANNEL, error_message)
+
+        
+        await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")

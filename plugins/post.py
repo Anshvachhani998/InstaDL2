@@ -61,21 +61,25 @@ def download_instagram_post(client, message):
 
         # ✅ Multiple Images/Videos Post
         if hasattr(media_info, "resources") and media_info.resources:
-            if 0 <= img_index < len(media_info.resources):
-                resource = media_info.resources[img_index]  # ✅ Select only the requested index
-                file_path = None
-                is_video = False
+            total_media = len(media_info.resources)
 
-                if resource.media_type == 2 and hasattr(resource, "video_url"):  # ✅ Video
-                    file_path = download_file(resource.video_url, user_id, img_index, is_video=True)
-                    is_video = True
-                elif resource.media_type == 1 and hasattr(resource, "display_url"):  # ✅ Image
-                    file_path = download_file(resource.display_url, user_id, img_index, is_video=False)
-
-                if file_path:
-                    media_items.append((file_path, is_video))
+            # ✅ Agar `img_index` valid hai toh wahi fetch karega
+            if 0 <= img_index < total_media:
+                selected_resource = media_info.resources[img_index]  
             else:
-                raise ValueError("⚠ The requested post index is invalid.")
+                selected_resource = media_info.resources[0]  # ✅ Default first media if index invalid
+
+            file_path = None
+            is_video = False
+
+            if selected_resource.media_type == 2 and hasattr(selected_resource, "video_url"):  # ✅ Video
+                file_path = download_file(selected_resource.video_url, user_id, img_index, is_video=True)
+                is_video = True
+            elif selected_resource.media_type == 1 and hasattr(selected_resource, "display_url"):  # ✅ Image
+                file_path = download_file(selected_resource.display_url, user_id, img_index, is_video=False)
+
+            if file_path:
+                media_items.append((file_path, is_video))
 
         # ✅ Single Image or Video Post
         else:
@@ -94,12 +98,12 @@ def download_instagram_post(client, message):
         if not media_items:
             raise ValueError("⚠ No media found in this post.")  
 
-        caption_user = "🖼 **Here is your post!**\n\n📌 *Provided by* @Ans_Links"
+        caption_user = f"🖼 **Here is your post! (Image #{img_index + 1})**\n\n📌 *Provided by* @Ans_Links"
         buttons_user = InlineKeyboardMarkup([
             [InlineKeyboardButton("🔗 Update Channel", url="https://t.me/Ans_Links")]
         ])
 
-        caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})"
+        caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})\n🖼 **Requested Image:** {img_index + 1}"
 
         # ✅ Send the requested media file
         for file_path, is_video in media_items:

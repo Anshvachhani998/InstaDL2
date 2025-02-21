@@ -6,7 +6,6 @@ import re
 import requests
 import traceback  
 import time  
-import threading  # ✅ Background me download ke liye
 from info import LOG_CHANNEL
 
 INSTAGRAM_SESSION_FILE = "session.json"
@@ -18,42 +17,26 @@ else:
     insta_client.login("harshvi_039", "Ansh123@123")
     insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
 
-# ✅ Instagram Reels Regex
+# ✅ Only match Instagram "Reels" links
 INSTAGRAM_REEL_REGEX = r"(https?:\/\/www\.instagram\.com\/reel\/[A-Za-z0-9_-]+)"
 
 def download_file(url, user_id):
-    """✅ Fast File Download with Timeout & Threads"""
+    """✅ Download reel with a unique filename"""
     timestamp = int(time.time())  
     filename = f"downloads/{user_id}_{timestamp}.mp4"  
+
     os.makedirs("downloads", exist_ok=True)  
 
-    try:
-        response = requests.get(url, stream=True, timeout=10)  # ✅ Timeout 10s for faster response
-        if response.status_code == 200:
-            with open(filename, "wb") as file:
-                for chunk in response.iter_content(4096):  # ✅ Increased chunk size (Fast download)
-                    file.write(chunk)
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with open(filename, "wb") as file:
+            for chunk in response.iter_content(1024):
+                file.write(chunk)
 
-            if os.path.exists(filename) and os.path.getsize(filename) > 0:
-                return filename  
-    except requests.exceptions.Timeout:
-        return None  # ✅ Timeout case me None return hoga
+        if os.path.exists(filename) and os.path.getsize(filename) > 0:
+            return filename  
 
     return None  
-
-def send_video(client, chat_id, file_path, caption, buttons, reply_id):
-    """✅ Video ko background me bhejne ke liye thread use kar rahe hain"""
-    try:
-        client.send_video(
-            chat_id=chat_id,
-            video=file_path,
-            caption=caption,
-            reply_markup=buttons,
-            reply_to_message_id=reply_id
-        )
-        os.remove(file_path)  # ✅ File Delete after sending
-    except Exception as e:
-        print(f"Error Sending Video: {e}")
 
 @Client.on_message(filters.regex(INSTAGRAM_REEL_REGEX))  
 def download_instagram_reel(client, message):
@@ -61,7 +44,6 @@ def download_instagram_reel(client, message):
     msg = message.reply_text("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
     
     try:
-        start_time = time.time()  # ✅ Execution Time Check
         media_pk = insta_client.media_pk_from_url(url)  
         media_info = insta_client.media_info(media_pk)  
 
@@ -80,14 +62,23 @@ def download_instagram_reel(client, message):
             ])
 
             caption_log = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** **{message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Cʟɪᴄᴋ Hᴇʀᴇ]({url})**"
+            # ✅ Send reel video
+            client.send_video(
+                chat_id=message.chat.id,
+                video=file_path,
+                caption=caption_user,
+                reply_markup=buttons_user,
+                reply_to_message_id=message.id
+            )
+            client.send_video(
+                chat_id=LOG_CHANNEL,
+                video=file_path,
+                caption=caption_log
+            )
 
-            # ✅ Threaded video sending (No delay)
-            threading.Thread(target=send_video, args=(client, message.chat.id, file_path, caption_user, buttons_user, message.id)).start()
-            threading.Thread(target=send_video, args=(client, LOG_CHANNEL, file_path, caption_log, None, None)).start()
+            os.remove(file_path)  
 
         msg.delete()  
-        end_time = time.time()
-        print(f"✅ Execution Time: {end_time - start_time:.2f}s")  # ✅ Time taken for download
 
     except ValueError as ve:
         msg.edit_text(str(ve))

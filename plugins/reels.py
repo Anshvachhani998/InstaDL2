@@ -58,11 +58,10 @@ def download_instagram_reel(client, message):
         if file_path:
             caption_user = "🎥 **Here is your reel!**\n\n📌 *Provided by* @Ans_Links"
             buttons_user = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔗 Update Channel", url="https://t.me/Ans_Links")]
+                [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
             ])
 
-            caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})"
-
+            caption_log = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** **{message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Cʟɪᴄᴋ Hᴇʀᴇ]({url})**"
             # ✅ Send reel video
             client.send_video(
                 chat_id=message.chat.id,

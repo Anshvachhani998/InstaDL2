@@ -1,7 +1,56 @@
 from pyrogram import Client, filters
-import os
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# Bot Start Command
 @Client.on_message(filters.command("start"))
 async def start(client, message):
-    await message.reply_text("👋 Hello! Bot is running successfully!")
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("❓ Help", callback_data="help"), InlineKeyboardButton("ℹ️ About", callback_data="about")],
+        [InlineKeyboardButton("📢 Updates Channel", url="https://t.me/YOUR_CHANNEL")]
+    ])
+    
+    await message.reply_text(
+        "💖✨ **Welcome to the Ultimate Instagram Downloader!** ✨💖\n\n"
+        "🚀 **Fastest Instagram Reels, Posts & IGTV Video Downloader!** 🎥\n"
+        "💫 Just send any Instagram link & get **high-speed downloads instantly!**\n\n"
+        "⚡ **Blazing Fast Downloads**\n"
+        "✅ **No Watermark, Full HD Quality**\n"
+        "🔹 **Unlimited & Secure**\n\n"
+        "💖 Enjoy Hassle-Free Downloads! 💖",
+        reply_markup=buttons
+    )
+
+@Client.on_callback_query(filters.regex("help"))
+async def help(client, callback_query):
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("⬅️ Back", callback_data="start"), InlineKeyboardButton("ℹ️ About", callback_data="about")]
+    ])
+    
+    await callback_query.message.edit_text(
+        "**❓ Help Guide**\n\n"
+        "📌 Just send any Instagram Reel, Post, or IGTV link here.\n"
+        "🔹 The bot will instantly download & send it to you in **HD quality**.\n"
+        "🚀 **Super Fast & Secure!**\n\n"
+        "🎥 **For manual download, use** `/dl` **command.**\n\n" 
+        "💖 **Enjoy hassle-free downloads!**",
+        reply_markup=buttons
+    )
+
+@Client.on_callback_query(filters.regex("about"))
+async def about(client, callback_query):
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("⬅️ Back", callback_data="start"), InlineKeyboardButton("❓ Help", callback_data="help")]
+    ])
+    
+    await callback_query.message.edit_text(
+        "**ℹ️ About This Bot**\n\n"
+        "💎 **Developed By:** [Your Name](https://t.me/YOUR_USERNAME)\n"
+        "🚀 **Purpose:** High-speed Instagram video downloads\n"
+        "🎥 **Supports:** Reels, Posts, IGTV\n"
+        "🔹 **No watermark, HD quality**\n\n"
+        "💖 Enjoy & Share!",
+        reply_markup=buttons
+    )
+
+@Client.on_callback_query(filters.regex("start"))
+async def back_to_start(client, callback_query):
+    await start(client, callback_query.message)

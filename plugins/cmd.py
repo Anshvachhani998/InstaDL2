@@ -2,7 +2,7 @@ import os
 import logging 
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from info import LOG_CHANNEL
+from info import LOG_CHANNEL, ADMINS
 from database.db import db
 
 logger = logging.getLogger(__name__)
@@ -81,3 +81,19 @@ async def about(client, callback_query):
     )
 
 
+
+@Client.on_message(filters.command('users') & filters.private)
+async def total_users(client, message):
+    if message.from_user.id not in ADMINS:
+        return await message.reply_text("🚫 **You are not authorized to use this command!**")
+
+    response = await message.reply("🔍 Fetching total users...")
+
+    total_users = await db.total_users_count()
+
+    await response.edit_text(
+        f"👑 **Admin Panel**\n\n"
+        f"🌍 **Total Users in Database:** `{total_users}`\n\n"
+        "🚀 *Thanks for managing this bot!*"
+    )
+    

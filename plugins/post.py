@@ -6,8 +6,7 @@ import re
 import requests
 import traceback  
 import time  
-from urllib.parse import urlparse, parse_qs  
-from info import LOG_CHANNEL  
+from info import LOG_CHANNEL
 
 INSTAGRAM_SESSION_FILE = "session.json"
 
@@ -52,34 +51,22 @@ def download_instagram_post(client, message):
         user_id = message.from_user.id
         first_name = message.from_user.first_name or "Unknown User"
 
-        # ✅ Extract img_index from URL if available
-        parsed_url = urlparse(url)
-        query_params = parse_qs(parsed_url.query)
-        img_index = int(query_params.get("img_index", [1])[0]) - 1  # Convert to 0-based index
-
         media_items = []
 
         # ✅ Multiple Images/Videos Post
-        if hasattr(media_info, "resources") and media_info.resources:
-            total_media = len(media_info.resources)
+        if media_info.resources:
+            for index, resource in enumerate(media_info.resources):
+                file_path = None
+                is_video = False
 
-            # ✅ Agar `img_index` valid hai toh wahi fetch karega
-            if 0 <= img_index < total_media:
-                selected_resource = media_info.resources[img_index]  
-            else:
-                selected_resource = media_info.resources[0]  # ✅ Default first media if index invalid
+                if resource.media_type == 2 and hasattr(resource, "video_url"):  # ✅ Video
+                    file_path = download_file(resource.video_url, user_id, index, is_video=True)
+                    is_video = True
+                elif resource.media_type == 1 and hasattr(resource, "thumbnail_url"):  # ✅ Image
+                    file_path = download_file(resource.thumbnail_url, user_id, index, is_video=False)
 
-            file_path = None
-            is_video = False
-
-            if selected_resource.media_type == 2 and hasattr(selected_resource, "video_url"):  # ✅ Video
-                file_path = download_file(selected_resource.video_url, user_id, img_index, is_video=True)
-                is_video = True
-            elif selected_resource.media_type == 1 and hasattr(selected_resource, "display_url"):  # ✅ Image
-                file_path = download_file(selected_resource.display_url, user_id, img_index, is_video=False)
-
-            if file_path:
-                media_items.append((file_path, is_video))
+                if file_path:
+                    media_items.append((file_path, is_video))
 
         # ✅ Single Image or Video Post
         else:
@@ -89,8 +76,8 @@ def download_instagram_post(client, message):
             if media_info.media_type == 2 and hasattr(media_info, "video_url"):
                 file_path = download_file(media_info.video_url, user_id, 0, is_video=True)
                 is_video = True
-            elif media_info.media_type == 1 and hasattr(media_info, "display_url"):
-                file_path = download_file(media_info.display_url, user_id, 0, is_video=False)
+            elif media_info.media_type == 1 and hasattr(media_info, "thumbnail_url"):
+                file_path = download_file(media_info.thumbnail_url, user_id, 0, is_video=False)
 
             if file_path:
                 media_items.append((file_path, is_video))
@@ -98,14 +85,14 @@ def download_instagram_post(client, message):
         if not media_items:
             raise ValueError("⚠ No media found in this post.")  
 
-        caption_user = f"🖼 **Here is your post! (Image #{img_index + 1})**\n\n📌 *Provided by* @Ans_Links"
+        caption_user = "🖼 **Here is your post!**\n\n📌 *Provided by* @Ans_Links"
         buttons_user = InlineKeyboardMarkup([
             [InlineKeyboardButton("🔗 Update Channel", url="https://t.me/Ans_Links")]
         ])
 
-        caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})\n🖼 **Requested Image:** {img_index + 1}"
+        caption_log = f"✅ **Downloaded By:** {first_name} (Telegram ID: `{user_id}`)\n📌 **Source:** [Click Here]({url})"
 
-        # ✅ Send the requested media file
+        # ✅ Send each media file
         for file_path, is_video in media_items:
             if is_video:
                 client.send_video(

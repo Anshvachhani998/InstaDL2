@@ -100,8 +100,8 @@ async def total_users(client, message):
 
 
 
-@Client.on_message(filters.command("total_downloads"))
-async def total_downloads(message: Message):
+@Client.on_message(filters.command("stats"))
+async def total_downloads(client, message):
     # Fetch the total downloads count from the database
     total_downloads_count = await db.get_total_downloads()
 

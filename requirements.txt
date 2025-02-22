@@ -1,7 +1,9 @@
 pyrogram
 tgcrypto
 flask
-aiohttp
+moviepy
+aiogram
+instaloader
 pytz
 instagrapi>=1.16.30
 Pillow==9.1.1

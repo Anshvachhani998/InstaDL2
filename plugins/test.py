@@ -31,7 +31,7 @@ async def login_instagram(client, message: Message):
 
     try:
         L.login(USERNAME, PASSWORD)
-        L.save_session_to_file()
+        L.save_session_to_file(session_file)
         await message.reply_text("✅ Login successful & session saved!")
     except instaloader.exceptions.TwoFactorAuthRequiredException:
         otp_required = True

@@ -6,6 +6,7 @@ class Database:
         self.client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
         self.db = self.client[MONGO_NAME]
         self.col = self.db["users"]
+        self.downloads_collection = self.db["downloads"]
 
     def new_user(self, id, name):
         return {"id": int(id), "name": name}
@@ -17,6 +18,15 @@ class Database:
     async def is_user_exist(self, id):      
         user = await self.col.find_one({"id": int(id)})
         return bool(user)
+
+    async def increment_download_count(self):
+        await self.downloads_collection.update_one(
+            {}, 
+            {"$setOnInsert": {"total_downloads": 0}},
+            upsert=True
+        )
+        
+        await self.downloads_collection.update_one({}, {"$inc": {"total_downloads": 1}})
 
     async def get_all_users(self):
         return self.col.find({})
@@ -31,4 +41,5 @@ class Database:
     async def block_user(self, user_id):
         await self.col.delete_many({'id': int(user_id)})
 
+# Initialize database object
 db = Database()

@@ -79,7 +79,7 @@ async def about(client, callback_query):
         "🔹 **No watermark, HD quality**\n\n"
         "**💖 Enjoy & Share!**",
         reply_markup=buttons,
-        parse_mode="MarkdownV2"
+        ParseMode.MARKDOWN
     )
 
 @Client.on_message(filters.command("about"))

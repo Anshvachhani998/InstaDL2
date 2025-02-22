@@ -1,5 +1,6 @@
 import instaloader
 import os
+import shutil
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
@@ -79,3 +80,47 @@ async def clear_session(client, message: Message):
         await message.reply_text("🗑️ Session cleared! Use `/login` to login again.")
     else:
         await message.reply_text("❌ No session file found.")
+
+
+
+
+# ✅ /dl <instagram_url> - Download Instagram Reel/Post
+@app.on_message(filters.command("dl"))
+async def download_instagram(client, message: Message):
+    if len(message.command) < 2:
+        await message.reply_text("❌ Usage: `/dl <instagram_url>`")
+        return
+
+    url = message.command[1]
+    shortcode = url.split("/")[-2]  # Extract Instagram Post ID
+
+    await message.reply_text("🔄 Downloading... Please wait!")
+
+    # ✅ Instaloader Instance
+    L = instaloader.Instaloader()
+
+    # ✅ Agar session file hai toh load karo
+    if os.path.exists(SESSION_FILE):
+        L.load_session_from_file(USERNAME)
+
+    try:
+        # ✅ Download Reel/Post
+        L.download_post(instaloader.Post.from_shortcode(L.context, shortcode), target="downloads")
+
+        # ✅ Find the downloaded video file
+        for file in os.listdir("downloads"):
+            if file.endswith(".mp4"):
+                video_path = os.path.join("downloads", file)
+
+                # ✅ Upload to Telegram
+                await message.reply_video(video_path, caption="✅ Reel downloaded successfully!")
+
+                # ✅ Clean up the folder
+                shutil.rmtree("downloads")
+                return
+
+        await message.reply_text("❌ Download failed. No video found!")
+
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+        

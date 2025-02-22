@@ -4,7 +4,8 @@ import re
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
-from utils import get_invite_link, is_subscribed  # ✅ Import from utils
+from utils import get_invite_link, is_subscribed
+
 
 app = Client
 
@@ -28,12 +29,20 @@ async def download_content(client, message, url, user_id):
         
         video_url = fetch_video_url(url)
         if not video_url:
-            await downloading_msg.edit(f"**⚠ No reel found in this URL {url}**")
+            await downloading_msg.edit(
+                "**⛔️ Unable to retrieve publication information.**\n\n"
+                "This could be due to the following reasons:\n"
+                "▫️ The account is private or closed.\n"
+                "▫️ A data retrieval error occurred.\n"
+                "▫️ The content might be restricted due to age or copyright limitations.\n\n"
+                "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**"
+            )
+
             return
         
-        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links**"
+        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
         buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/Ans_Links")]
+            [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
         ])
 
         await message.reply_video(video_url, caption=caption_user, reply_markup=buttons)
@@ -64,7 +73,7 @@ async def handle_instagram_link(client, message):
         return await message.reply(
             "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
             "🔹 Tᴏ ᴜsᴇ ᴛʜɪs Bᴏᴛ, ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏғғɪᴄɪᴀʟ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ.\n"
-            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ. {url}\n\n",         
+            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ.\n\n",         
             reply_markup=buttons
         )
 
@@ -77,11 +86,10 @@ async def check_subscription(client, callback_query):
     url = callback_query.data.split("#")[2]  # Extract URL from callback data
     
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
-        # After confirming subscription, download the content
-        await callback_query.answer(f"✅ You are subscribed. Now processing your request... {callback_query.data}", show_alert=True)
+        an = await callback_query.edit_text("**🙏 Tʜᴀɴᴋs Fᴏʀ Jᴏɪɴɪɴɢ! Nᴏᴡ Pʀᴏᴄᴇssɪɴɢ Yᴏᴜʀ Lɪɴᴋ...**")
         
-        # Use the same download logic
+
         await download_content(client, callback_query.message, url, user_id)
-        
+        await an.delete() 
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

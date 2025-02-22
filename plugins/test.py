@@ -1,8 +1,8 @@
 import instaloader
 import os
 import shutil
-from pyrogram import Client, filters
-from pyrogram.types import Message, InputFile
+from pyrogram import Client, filters, InputFile
+from pyrogram.types import Message
 
 app = Client # ✅ Client object properly initialize karo
 

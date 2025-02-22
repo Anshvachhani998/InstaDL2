@@ -23,7 +23,7 @@ def ensure_logged_in():
     insta_client.login("loveis8507", "Ansh12345@23")
 
     with open(INSTAGRAM_SESSION_FILE, "w") as f:
-        f.write(insta_client.dump_settings())  # ✅ FIXED: No argument needed
+        f.write(insta_client.dump_settings(INSTAGRAM_SESSION_FILE))  # ✅ FIXED: No argument needed
 
 
 @bot.on_message(filters.command("export_session"))

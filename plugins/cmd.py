@@ -99,16 +99,19 @@ async def total_users(client, message):
     
 
 
+@Client.on_message(filters.command("stats") & filters.private)
+async def stats(message: Message):
+    if message.from_user.id not in ADMINS:
+        return await message.reply_text("🚫 **You are not authorized to use this command!**")
+  
+    response = await message.reply("**🔍 Fetching Bot Statistics**")
 
-@Client.on_message(filters.command("stats"))
-async def total_downloads(client, message):
-    # Fetch the total downloads count from the database
-    total_downloads_count = await db.get_total_downloads()
-
-    # Send a more professional reply
-    await message.reply(
-        f"📊 **Total Downloads:**\n\n"
-        f"🔢 The total number of downloads made through the bot is: **{total_downloads_count}**.\n\n"
-        "Feel free to continue using the bot for more downloads!"
+    total_users = await db.total_users_count()
+    total_downloads = await db.get_total_downloads()
+    
+    await response.edit_text(
+        f"📊 **Bot Statistics**\n\n"
+        f"👥 **Total Users:** {total_users}\n"
+        f"⬇️ **Total Downloads:** {total_downloads}\n\n"
+        "These stats show the total number of users and downloads recorded in the system."
     )
-

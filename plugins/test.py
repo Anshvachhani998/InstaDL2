@@ -56,7 +56,7 @@ async def handle_otp(client, message: Message):
 
     try:
         L.two_factor_login(otp_code)
-        L.save_session_to_file()
+        L.save_session_to_file(session_file)
         otp_required = False
         await message.reply_text("✅ OTP verified & login successful!")
     except Exception as e:

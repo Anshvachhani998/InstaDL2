@@ -23,7 +23,7 @@ def ensure_logged_in():
     insta_client.login("loveis8507", "Ansh12345@23")
 
     with open(INSTAGRAM_SESSION_FILE, "w") as f:  # ✅ JSON format me properly save karo
-        f.write(insta_client.dump_settings())
+        f.write(insta_client.dump_settings(INSTAGRAM_SESSION_FILE))
 
 
 @bot.on_message(filters.command("export_session"))

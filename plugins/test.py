@@ -49,7 +49,7 @@ async def instaloader_login(L, login, password, admin_id):
 
 # Download command
 @bot.on_message(filters.command('download') & filters.text)
-async def download_instagram_content(message: Message):
+async def download_instagram_content(client, message: Message):
     url = message.text.split(' ', 1)[1]
 
     if not url:

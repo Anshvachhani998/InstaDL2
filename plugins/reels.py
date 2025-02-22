@@ -87,7 +87,7 @@ async def check_subscription(client, callback_query):
     url = callback_query.data.split("#")[2]  # Extract URL from callback data
     
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
-        an = await callback_query.edit_text("**🙏 Tʜᴀɴᴋs Fᴏʀ Jᴏɪɴɪɴɢ! Nᴏᴡ Pʀᴏᴄᴇssɪɴɢ Yᴏᴜʀ Lɪɴᴋ...**")
+        an = await message.edit_text("**🙏 Tʜᴀɴᴋs Fᴏʀ Jᴏɪɴɪɴɢ! Nᴏᴡ Pʀᴏᴄᴇssɪɴɢ Yᴏᴜʀ Lɪɴᴋ...**")
         
 
         await download_content(client, callback_query.message, url, user_id)

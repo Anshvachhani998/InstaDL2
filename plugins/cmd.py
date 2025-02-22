@@ -107,6 +107,14 @@ async def helpcmd(client, message):
         "💖 **Enjoy hassle-free downloads!**"        
     )
 
+@Client.on_message(filters.command("dl"))
+async def dlcmd(client, message):
+    
+    await message.reply(
+        "**📌 Just send any Instagram Reel, Post, or IGTV link here.**"        
+    )
+
+
 @Client.on_message(filters.command('users') & filters.private)
 async def total_users(client, message):
     if message.from_user.id not in ADMINS:
@@ -140,3 +148,4 @@ async def stats(client, message):
         f"⬇️ **Total Downloads:** {total_downloads}\n\n"
         "These stats show the total number of users and downloads recorded in the system."
     )
+

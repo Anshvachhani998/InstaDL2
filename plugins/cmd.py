@@ -29,7 +29,7 @@ async def start(client, message):
         "🔹 **Unlimited & Secure**\n\n"
         "💖 Enjoy Hassle-Free Downloads! 💖",
         reply_markup=buttons,
-        parse_mode=enums.ParseMode.HTML        
+        parse_mode=enums.ParseMode.Markdown        
     )
 
 @Client.on_callback_query(filters.regex("start"))

@@ -28,7 +28,7 @@ async def download_content(client, message, url, user_id):
         
         video_url = fetch_video_url(url)
         if not video_url:
-            await downloading_msg.edit(f"**⚠ No reel found in this URL**")
+            await downloading_msg.edit(f"**⚠ No reel found in this URL {url}**")
             return
         
         caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Links**"

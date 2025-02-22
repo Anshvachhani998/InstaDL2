@@ -129,3 +129,44 @@ async def download_instagram(client, message: Message):
 
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
+
+
+
+# ✅ /session_export - Export Session Data
+@app.on_message(filters.command("session_export"))
+async def export_session(client, message: Message):
+    if not os.path.exists(SESSION_FILE):
+        await message.reply_text("❌ No session file found. Please use `/login` first.")
+        return
+
+    # ✅ Read session file
+    with open(SESSION_FILE, "rb") as f:
+        session_data = f.read()
+
+    # ✅ Save session to a text file
+    with open("session.txt", "wb") as f:
+        f.write(session_data)
+
+    # ✅ Send session file to user
+    await message.reply_document(InputFile("session.txt"), caption="✅ Here is your session file. Use `/session_import` to restore.")
+
+    # ✅ Clean up
+    os.remove("session.txt")
+
+
+# ✅ /session_import - Import Session Data
+@app.on_message(filters.command("session_import"))
+async def import_session(client, message: Message):
+    if not message.reply_to_message or not message.reply_to_message.document:
+        await message.reply_text("❌ Please reply to a valid session file (.txt).")
+        return
+
+    # ✅ Download the file
+    session_file_path = await message.reply_to_message.download()
+
+    # ✅ Move file to correct session location
+    os.rename(session_file_path, SESSION_FILE)
+
+    await message.reply_text("✅ Session imported successfully! Now you can use `/dl` without logging in again.")
+
+

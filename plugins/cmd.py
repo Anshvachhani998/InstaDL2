@@ -127,7 +127,7 @@ async def total_users(client, message):
     await response.edit_text(
         f"👑 **Admin Panel**\n\n"
         f"🌍 **Total Users in Database:** `{total_users}`\n\n"
-        "🚀 *Thanks for managing this bot!*"
+        "**🚀 Thanks for managing this bot!**"
     )
     
 

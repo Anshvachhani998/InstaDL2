@@ -64,7 +64,7 @@ async def handle_instagram_link(client, message):
         return await message.reply(
             "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
             "🔹 Tᴏ ᴜsᴇ ᴛʜɪs Bᴏᴛ, ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏғғɪᴄɪᴀʟ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ.\n"
-            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ.\n\n",         
+            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ. {url}\n\n",         
             reply_markup=buttons
         )
 
@@ -78,7 +78,7 @@ async def check_subscription(client, callback_query):
     
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
         # After confirming subscription, download the content
-        await callback_query.answer("✅ You are subscribed. Now processing your request...", show_alert=True)
+        await callback_query.answer(f"✅ You are subscribed. Now processing your request... {callback_query.data}", show_alert=True)
         
         # Use the same download logic
         await download_content(client, callback_query.message, url, user_id)

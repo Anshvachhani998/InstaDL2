@@ -1,7 +1,7 @@
 import instaloader
 import os
 from pyrogram import Client, filters
-from pyrogram.types import Message, ForceReply
+from pyrogram.types import Message
 
 app = Client  # Direct rakha hai jaise tumne bola
 
@@ -13,7 +13,7 @@ session_file = f"session-{USERNAME}"
 otp_required = False  # OTP Flag
 PASSWORD = None  # Store Password Temporarily
 
-# ✅ /login - Instagram Login Command
+# ✅ /login <password> - Instagram Login Command
 @app.on_message(filters.command("login"))
 async def login_instagram(client, message: Message):
     global otp_required, PASSWORD
@@ -22,25 +22,22 @@ async def login_instagram(client, message: Message):
         await message.reply_text("✅ You are already logged in!")
         return
     
-    password_msg = await message.reply_text("🔐 Please enter your Instagram password:", reply_markup=ForceReply())
+    # Check if password is provided in command
+    if len(message.command) < 2:
+        await message.reply_text("❌ Usage: `/login <password>`")
+        return
 
-    # Wait for the user's reply
-    @app.on_message(filters.reply & filters.text)
-    async def get_password(client, password_response: Message):
-        global PASSWORD
-        if password_response.reply_to_message.message_id == password_msg.message_id:
-            PASSWORD = password_response.text
+    PASSWORD = message.command[1]
 
-            try:
-                L.login(USERNAME, PASSWORD)
-                L.save_session_to_file()
-                await password_response.reply_text("✅ Login successful & session saved!")
-            except instaloader.exceptions.TwoFactorAuthRequiredException:
-                global otp_required
-                otp_required = True
-                await password_response.reply_text("🔢 Enter OTP using `/otp <code>`")
-            except Exception as e:
-                await password_response.reply_text(f"❌ Login failed: {e}")
+    try:
+        L.login(USERNAME, PASSWORD)
+        L.save_session_to_file()
+        await message.reply_text("✅ Login successful & session saved!")
+    except instaloader.exceptions.TwoFactorAuthRequiredException:
+        otp_required = True
+        await message.reply_text("🔢 Enter OTP using `/otp <code>`")
+    except Exception as e:
+        await message.reply_text(f"❌ Login failed: {e}")
 
 # ✅ /otp - Handle OTP Input
 @app.on_message(filters.command("otp"))

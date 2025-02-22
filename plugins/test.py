@@ -47,14 +47,14 @@ async def instaloader_login(L, login, password, admin_id):
             await asyncio.to_thread(L.two_factor_login, code)
             await asyncio.to_thread(L.save_session_to_file)
 
-# Download command
 @bot.on_message(filters.command('download') & filters.text)
 async def download_instagram_content(client, message: Message):
-    url = message.text.split(' ', 1)[1]
-
-    if not url:
+    # Check if the message has a URL after the command
+    if len(message.text.split(' ', 1)) < 2:
         await message.reply("Please provide a valid Instagram URL. Example: `/download https://www.instagram.com/p/xyz`")
         return
+
+    url = message.text.split(' ', 1)[1]
 
     # Start login to Instagram
     await instaloader_login(L, INST_LOGIN, INST_PASS, admin_id)
@@ -120,4 +120,3 @@ async def download_instagram_content(client, message: Message):
     except Exception as e:
         print(e)
         await message.reply("Something went wrong :(\nPlease try again later.")
-

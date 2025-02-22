@@ -100,7 +100,7 @@ async def total_users(client, message):
 
 
 @Client.on_message(filters.command("stats") & filters.private)
-async def stats(message: Message):
+async def stats(client, message):
     if message.from_user.id not in ADMINS:
         return await message.reply_text("🚫 **You are not authorized to use this command!**")
   

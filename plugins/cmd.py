@@ -28,8 +28,7 @@ async def start(client, message):
         "✅ **No Watermark, Full HD Quality**\n"
         "🔹 **Unlimited & Secure**\n\n"
         "💖 Enjoy Hassle-Free Downloads! 💖",
-        reply_markup=buttons,
-        parse_mode=enums.ParseMode.Markdown        
+        reply_markup=buttons                
     )
 
 @Client.on_callback_query(filters.regex("start"))
@@ -80,7 +79,7 @@ async def about(client, callback_query):
         "🔹 **No watermark, HD quality**\n\n"
         "**💖 Enjoy & Share!**",
         reply_markup=buttons,
-        parse_mode=enums.ParseMode.Markdown
+        parse_mode="Markdown"
     )
 
 @Client.on_message(filters.command("about"))

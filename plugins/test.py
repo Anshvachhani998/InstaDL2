@@ -12,18 +12,18 @@ def ensure_logged_in():
     """ Ensure Instagram is logged in before making requests """
     if os.path.exists(INSTAGRAM_SESSION_FILE):
         try:
-            insta_client.load_settings(INSTAGRAM_SESSION_FILE)
-            insta_client.get_timeline_feed()  # ✅ Test login validity
-            return  # If session is valid, return
-        except Exception:
-            pass  # Ignore errors and proceed to login
+            with open(INSTAGRAM_SESSION_FILE, "r") as f:  # ✅ JSON format me load karne ke liye read karo
+                session_data = f.read()
+                insta_client.load_settings(session_data)  # ✅ String pass karna zaroori hai
+            if insta_client.get_settings():
+                return  # ✅ Already logged in
+        except Exception as e:
+            print(f"⚠️ Session Load Failed: {e}")
 
-    # ✅ If session fails, do fresh login
-    try:
-        insta_client.login("loveis8507", "Ansh12345@23")
-        insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
-    except Exception as e:
-        print(f"❌ Instagram Login Failed: {e}")
+    insta_client.login("loveis8507", "Ansh12345@23")
+
+    with open(INSTAGRAM_SESSION_FILE, "w") as f:  # ✅ JSON format me properly save karo
+        f.write(insta_client.dump_settings())
 
 
 @bot.on_message(filters.command("export_session"))

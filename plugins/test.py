@@ -1,171 +1,78 @@
-import instaloader
-import os
-import shutil
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from instagrapi import Client as InstaClient
+import os
 
-app = Client # ✅ Client object properly initialize karo
+# Initialize Pyrogram Bot
+bot = Client
 
+INSTAGRAM_SESSION_FILE = "session.json"
+insta_client = InstaClient()
 
+def ensure_logged_in():
+    """ Ensure Instagram is logged in before making requests """
+    if insta_client.get_settings():  
+        return  # Already logged in
 
+    if os.path.exists(INSTAGRAM_SESSION_FILE):
+        try:
+            insta_client.load_settings(INSTAGRAM_SESSION_FILE)
+        except Exception:
+            pass  # Ignore errors and proceed to login
 
-otp_required = False  # OTP Flag
-PASSWORD = None  # Store Password Temporarily
+    if not insta_client.get_settings():  # If still not logged in
+        insta_client.login("loveis8507", "Ansh12345@23")
+        insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
 
-
-
-USERNAME = "loveis8507"
-SESSION_DIR = "sessions"
-SESSION_FILE = os.path.join(SESSION_DIR, f"session-{USERNAME}")
-
-# ✅ Ensure session directory exists
-os.makedirs(SESSION_DIR, exist_ok=True)
-
-# ✅ /login <password> - Login & Save Session
-@app.on_message(filters.command("login"))
-async def login_instagram(client, message: Message):
-    global PASSWORD
-    
-    L = instaloader.Instaloader()
-
-    if os.path.exists(SESSION_FILE):
-        L.load_session_from_file(USERNAME, SESSION_FILE)  # ✅ Load session from correct path
-        await message.reply_text("✅ Logged in using saved session!")
-        return
-    
-    if len(message.command) < 2:
-        await message.reply_text("❌ Usage: `/login <password>`")
-        return
-
-    PASSWORD = message.command[1]
-
-    try:
-        L.login(USERNAME, PASSWORD)
-        L.save_session_to_file(SESSION_FILE)  # ✅ Save session in the correct directory
-        await message.reply_text("✅ Login successful & session saved!")
-    except instaloader.exceptions.TwoFactorAuthRequiredException:
-        await message.reply_text("🔢 Enter OTP using `/otp <code>`")
-    except Exception as e:
-        await message.reply_text(f"❌ Login failed: {e}")
-
-
-# ✅ /otp - Handle OTP Input
-@app.on_message(filters.command("otp"))
-async def handle_otp(client, message: Message):
-    global otp_required
-    
-    if not otp_required:
-        await message.reply_text("❌ OTP is not required. Use `/login` first.")
-        return
-    
-    if len(message.command) < 2:
-        await message.reply_text("Usage: `/otp <code>`")
-        return
-
-    otp_code = message.command[1]
-    
-    L = instaloader.Instaloader()
-    
-    try:
-        L.two_factor_login(otp_code)
-        L.save_session_to_file(SESSION_FILE)
-        otp_required = False
-        await message.reply_text("✅ OTP verified & login successful!")
-    except Exception as e:
-        await message.reply_text(f"❌ OTP verification failed: {e}")
-
-# ✅ /session - Check if Session Exists
-@app.on_message(filters.command("session"))
-async def check_session(client, message: Message):
-    if os.path.exists(SESSION_FILE):
-        await message.reply_text(f"✅ Logged in with a saved session: `{SESSION_FILE}`")
+@bot.on_message(filters.command("export_session"))
+def export_session(client, message):
+    """ Exports the current session.json file """
+    if os.path.exists(INSTAGRAM_SESSION_FILE):
+        message.reply_document(INSTAGRAM_SESSION_FILE, caption="✅ Here is your Instagram session file.")
     else:
-        await message.reply_text("❌ No session found. Please use `/login` first.")
+        message.reply_text("⚠️ No session file found. Please login using `/login` first.")
 
-# ✅ /clear_session - Delete Session File
-@app.on_message(filters.command("clear_session"))
-async def clear_session(client, message: Message):
-    if os.path.exists(SESSION_FILE):
-        os.remove(SESSION_FILE)
-        await message.reply_text("🗑️ Session cleared! Use `/login` to login again.")
+@bot.on_message(filters.command("import_session"))
+def import_session(client, message):
+    """ Prompts user to upload a session file """
+    message.reply_text("📥 Please send your `session.json` file.")
+
+@bot.on_message(filters.document)
+def handle_document_upload(client, message):
+    """ Handles session.json file upload """
+    document = message.document
+    if document.file_name == "session.json":
+        file_path = bot.download_media(message)
+        os.rename(file_path, INSTAGRAM_SESSION_FILE)
+        message.reply_text("✅ Session file imported successfully!")
     else:
-        await message.reply_text("❌ No session file found.")
+        message.reply_text("⚠️ Invalid file. Please send `session.json`.")
 
-# ✅ /dl <instagram_url> - Download Instagram Reel/Post
-@app.on_message(filters.command("dl"))
-async def download_instagram(client, message: Message):
+@bot.on_message(filters.command("profile"))
+def profile_command(client, message):
     if len(message.command) < 2:
-        await message.reply_text("❌ Usage: `/dl <instagram_url>`")
+        message.reply_text("⚠️ Please provide a username: `/profile <username>`")
         return
 
-    url = message.command[1]
-    shortcode = url.split("/")[-2]  # ✅ Extract Instagram Post ID
-
-    await message.reply_text("🔄 Downloading... Please wait!")
-
-    # ✅ Instaloader Instance
-    L = instaloader.Instaloader()
-
-    if os.path.exists(SESSION_FILE):
-        L.load_session_from_file(USERNAME, SESSION_FILE)
-
-
-    # ✅ Create "downloads" Folder
-    download_path = "downloads"
-    os.makedirs(download_path, exist_ok=True)
+    username = message.command[1]
 
     try:
-        # ✅ Download Post/Reel
-        post = instaloader.Post.from_shortcode(L.context, shortcode)
-        L.download_post(post, target=download_path)
+        ensure_logged_in()  # Ensure login before making request
+        user_info = insta_client.user_info_by_username(username)
+        profile_pic = user_info.profile_pic_url
+        bio = user_info.biography or "No bio available."
+        followers = user_info.follower_count
+        following = user_info.following_count
 
-        # ✅ Find the downloaded video file
-        video_file = None
-        for file in os.listdir(download_path):
-            if file.endswith(".mp4"):
-                video_file = os.path.join(download_path, file)
-                break
+        response_text = f"""
+📌 **Instagram Profile Info**
+👤 **Username:** {username}
+📖 **Bio:** {bio}
+👥 **Followers:** {followers}
+🔄 **Following:** {following}
+        """
 
-        if video_file:
-            # ✅ Upload to Telegram
-            await message.reply_video(video_file, caption="✅ Reel downloaded successfully!")
-
-            # ✅ Clean up the folder
-            shutil.rmtree(download_path)
-        else:
-            await message.reply_text("❌ Download failed. No video found!")
-
+        message.reply_photo(profile_pic, caption=response_text)
     except Exception as e:
-        await message.reply_text(f"❌ Error: {e}")
-
-
-
-# ✅ /session_export - Export Session Data
-@app.on_message(filters.command("session_export"))
-async def export_session(client, message: Message):
-    if not os.path.exists(SESSION_FILE):
-        await message.reply_text("❌ No session file found. Please use `/login` first.")
-        return
-
-    # ✅ Read session file
-    with open(SESSION_FILE, "rb") as f:
-        session_data = f.read()
-
-
-    await message.reply_document(SESSION_FILE, caption="📂 Here is your session file!")
-
-@app.on_message(filters.command("session_import"))
-async def import_session(client, message: Message):
-    if len(message.command) < 2:
-        await message.reply_text("❌ Usage: `/session_import <session_data>`")
-        return
-
-    session_data = message.text.split(maxsplit=1)[1]  # Extract session data from message
-
-    # ✅ Save session data to file
-    with open(SESSION_FILE, "w") as f:
-        f.write(session_data)
-
-    await message.reply_text("✅ Session imported successfully! Now you can use `/dl` without logging in again.")
+        message.reply_text(f"❌ Error: {str(e)}")
 
 

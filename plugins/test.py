@@ -8,7 +8,9 @@ app = Client # ✅ Client object properly initialize karo
 
 # ✅ Instagram Username
 USERNAME = "loveis8507"
-SESSION_FILE = f"session-{USERNAME}"
+SESSION_DIR = "sessions"  # ✅ Yeh folder create karlo jisme session save hoga
+SESSION_FILE = os.path.join(SESSION_DIR, f"session-{USERNAME}")
+
 
 otp_required = False  # OTP Flag
 PASSWORD = None  # Store Password Temporarily

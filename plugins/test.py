@@ -1,7 +1,7 @@
 import instaloader
 import os
 import shutil
-from pyrogram import Client, filters, InputFile
+from pyrogram import Client, filters
 from pyrogram.types import Message
 
 app = Client # ✅ Client object properly initialize karo
@@ -143,29 +143,21 @@ async def export_session(client, message: Message):
     with open(SESSION_FILE, "rb") as f:
         session_data = f.read()
 
-    # ✅ Save session to a text file
-    with open("session.txt", "wb") as f:
-        f.write(session_data)
 
-    # ✅ Send session file to user
-    await message.reply_document(InputFile("session.txt"), caption="✅ Here is your session file. Use `/session_import` to restore.")
-
-    # ✅ Clean up
-    os.remove("session.txt")
+    await message.reply_text(f"```{session_data}```", quote=True)
 
 
-# ✅ /session_import - Import Session Data
 @app.on_message(filters.command("session_import"))
 async def import_session(client, message: Message):
-    if not message.reply_to_message or not message.reply_to_message.document:
-        await message.reply_text("❌ Please reply to a valid session file (.txt).")
+    if len(message.command) < 2:
+        await message.reply_text("❌ Usage: `/session_import <session_data>`")
         return
 
-    # ✅ Download the file
-    session_file_path = await message.reply_to_message.download()
+    session_data = message.text.split(maxsplit=1)[1]  # Extract session data from message
 
-    # ✅ Move file to correct session location
-    os.rename(session_file_path, SESSION_FILE)
+    # ✅ Save session data to file
+    with open(SESSION_FILE, "w") as f:
+        f.write(session_data)
 
     await message.reply_text("✅ Session imported successfully! Now you can use `/dl` without logging in again.")
 

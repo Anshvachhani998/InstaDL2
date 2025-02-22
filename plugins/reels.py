@@ -59,7 +59,7 @@ async def handle_instagram_link(client, message):
 
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("✨ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ 🔥", url=invite_link)],
-            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʀʏ ✅", callback_data=f"check_sub:{user_id}:{url}")]
+            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʀʏ ✅", callback_data=f"check_sub#{user_id}#{url}")]
         ])
         return await message.reply(
             "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
@@ -74,7 +74,7 @@ async def handle_instagram_link(client, message):
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):
     user_id = callback_query.from_user.id
-    url = callback_query.data.split(":")[2]  # Extract URL from callback data
+    url = callback_query.data.split("#")[2]  # Extract URL from callback data
     
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
         # After confirming subscription, download the content

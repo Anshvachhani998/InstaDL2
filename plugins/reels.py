@@ -22,7 +22,7 @@ def fetch_video_url(instagram_url):
 
 INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel|tv|p)/[^\s?]+)"
 
-async def download_content(client, message, url, user_id):
+async def download_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
@@ -38,7 +38,6 @@ async def download_content(client, message, url, user_id):
                 "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
                 disable_web_page_preview=True
             )
-
             return
         
         caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
@@ -47,14 +46,19 @@ async def download_content(client, message, url, user_id):
         ])
 
         await message.reply_video(video_url, caption=caption_user, reply_markup=buttons)
-        await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")
+
+        # `mention` ko check karenge, agar None hai toh `message.from_user.mention` use karenge
+        user_mention = mention or message.from_user.mention  
+
+        await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")
         await db.increment_download_count()
         await downloading_msg.delete()
 
     except Exception as e:
-        error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
+        error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
         await client.send_message(LOG_CHANNEL, error_message)
         await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
+
 
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))
@@ -84,14 +88,15 @@ async def handle_instagram_link(client, message):
 
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):
-    user_id = callback_query.from_user.id
+    user_id = callback_query.from_user.id  # Correct user ID
+    mention = callback_query.from_user.mention  # Correct user mention
     url = callback_query.data.split("#")[2]  # Extract URL from callback data
     
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
         an = await callback_query.message.edit_text("**🙏 Tʜᴀɴᴋs Fᴏʀ Jᴏɪɴɪɴɢ! Nᴏᴡ Pʀᴏᴄᴇssɪɴɢ Yᴏᴜʀ Lɪɴᴋ...**")
-        
 
-        await download_content(client, callback_query.message, url, user_id)
-        await an.delete() 
+        # Pass `mention` as a new parameter
+        await download_content(client, callback_query.message, url, user_id, mention)
+        await an.delete()
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

@@ -4,6 +4,7 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from info import LOG_CHANNEL, ADMINS
 from database.db import db
+from pyrogram.enums import ParseMode
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,8 @@ async def start(client, message):
         "✅ **No Watermark, Full HD Quality**\n"
         "🔹 **Unlimited & Secure**\n\n"
         "💖 Enjoy Hassle-Free Downloads! 💖",
-        reply_markup=buttons
+        reply_markup=buttons,
+        parse_mode=enums.ParseMode.HTML        
     )
 
 @Client.on_callback_query(filters.regex("start"))
@@ -72,12 +74,13 @@ async def about(client, callback_query):
     
     await callback_query.message.edit_text(
         "**ℹ️ About This Bot**\n\n"
-        "💎 **Developed By:** [AnS </> Team](https://t.me/AnS_team)\n"
+        "💎 **Developed By: [AnS </> Team](https://t.me/AnS_team)**\n"
         "🚀 **Purpose:** High-speed Instagram video downloads\n"
         "🎥 **Supports:** Reels, Posts, IGTV\n"
         "🔹 **No watermark, HD quality**\n\n"
         "**💖 Enjoy & Share!**",
-        reply_markup=buttons
+        reply_markup=buttons,
+        parse_mode=enums.ParseMode.HTML
     )
 
 

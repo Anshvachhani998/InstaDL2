@@ -47,7 +47,7 @@ async def download_content(client, message, url, user_id):
 
         await message.reply_video(video_url, caption=caption_user, reply_markup=buttons)
         await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {message.from_user.mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")
-        db.increment_download_count()
+        await db.increment_download_count()
         await downloading_msg.delete()
 
     except Exception as e:

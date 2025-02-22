@@ -80,10 +80,33 @@ async def about(client, callback_query):
         "🔹 **No watermark, HD quality**\n\n"
         "**💖 Enjoy & Share!**",
         reply_markup=buttons,
-        parse_mode=enums.ParseMode.HTML
+        parse_mode=enums.ParseMode.Markdown
     )
 
+@Client.on_message(filters.command("about"))
+async def aboutcmd(client, message):
+    
+    await message.reply(
+        "**ℹ️ About This Bot**\n\n"
+        "💎 **Developed By: [AnS </> Team](https://t.me/AnS_team)**\n"
+        "🚀 **Purpose:** High-speed Instagram video downloads\n"
+        "🎥 **Supports:** Reels, Posts, IGTV\n"
+        "🔹 **No watermark, HD quality**\n\n"
+        "**💖 Enjoy & Share!**",
+        parse_mode=enums.ParseMode.Markdown
+    )
 
+@Client.on_message(filters.command("help"))
+async def helpcmd(client, message):
+    
+    await message.reply(
+        "**❓ Help Guide**\n\n"
+        "📌 Just send any Instagram Reel, Post, or IGTV link here.\n"
+        "🔹 The bot will instantly download & send it to you in **HD quality**.\n"
+        "🚀 **Super Fast & Secure!**\n\n"
+        "🎥 **For manual download, use** `/dl <link>` **command.**\n\n" 
+        "💖 **Enjoy hassle-free downloads!**"        
+    )
 
 @Client.on_message(filters.command('users') & filters.private)
 async def total_users(client, message):

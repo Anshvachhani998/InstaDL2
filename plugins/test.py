@@ -1,9 +1,9 @@
 import instaloader
 import os
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram.types import Message, ForceReply
 
-app = Client
+app = Client  # Direct rakha hai jaise tumne bola
 
 # Instaloader Instance
 L = instaloader.Instaloader()
@@ -22,24 +22,25 @@ async def login_instagram(client, message: Message):
         await message.reply_text("✅ You are already logged in!")
         return
     
-    await message.reply_text("🔐 Please enter your Instagram password:")
+    password_msg = await message.reply_text("🔐 Please enter your Instagram password:", reply_markup=ForceReply())
 
-    # Listen for password input
-    def check_password(m: Message):
-        return m.from_user.id == message.from_user.id
+    # Wait for the user's reply
+    @app.on_message(filters.reply & filters.text)
+    async def get_password(client, password_response: Message):
+        global PASSWORD
+        if password_response.reply_to_message.message_id == password_msg.message_id:
+            PASSWORD = password_response.text
 
-    password_msg = await client.listen(message.chat.id, filters.text, timeout=30)
-    PASSWORD = password_msg.text
-
-    try:
-        L.login(USERNAME, PASSWORD)
-        L.save_session_to_file()
-        await message.reply_text("✅ Login successful & session saved!")
-    except instaloader.exceptions.TwoFactorAuthRequiredException:
-        otp_required = True
-        await message.reply_text("🔢 Enter OTP using `/otp <code>`")
-    except Exception as e:
-        await message.reply_text(f"❌ Login failed: {e}")
+            try:
+                L.login(USERNAME, PASSWORD)
+                L.save_session_to_file()
+                await password_response.reply_text("✅ Login successful & session saved!")
+            except instaloader.exceptions.TwoFactorAuthRequiredException:
+                global otp_required
+                otp_required = True
+                await password_response.reply_text("🔢 Enter OTP using `/otp <code>`")
+            except Exception as e:
+                await password_response.reply_text(f"❌ Login failed: {e}")
 
 # ✅ /otp - Handle OTP Input
 @app.on_message(filters.command("otp"))
@@ -80,4 +81,3 @@ async def clear_session(client, message: Message):
         await message.reply_text("🗑️ Session cleared! Use /login to login again.")
     else:
         await message.reply_text("❌ No session file found.")
-

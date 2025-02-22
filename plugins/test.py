@@ -6,24 +6,30 @@ from pyrogram.types import Message
 
 app = Client # ✅ Client object properly initialize karo
 
-# ✅ Instagram Username
-USERNAME = "loveis8507"
-SESSION_DIR = "sessions"  # ✅ Yeh folder create karlo jisme session save hoga
-SESSION_FILE = os.path.join(SESSION_DIR, f"session-{USERNAME}")
+
 
 
 otp_required = False  # OTP Flag
 PASSWORD = None  # Store Password Temporarily
 
-# ✅ /login <password> - Instagram Login Command
+
+
+USERNAME = "loveis8507"
+SESSION_DIR = "sessions"
+SESSION_FILE = os.path.join(SESSION_DIR, f"session-{USERNAME}")
+
+# ✅ Ensure session directory exists
+os.makedirs(SESSION_DIR, exist_ok=True)
+
+# ✅ /login <password> - Login & Save Session
 @app.on_message(filters.command("login"))
 async def login_instagram(client, message: Message):
-    global otp_required, PASSWORD
+    global PASSWORD
     
     L = instaloader.Instaloader()
 
     if os.path.exists(SESSION_FILE):
-        L.load_session_from_file(USERNAME)
+        L.load_session_from_file(USERNAME, SESSION_FILE)  # ✅ Load session from correct path
         await message.reply_text("✅ Logged in using saved session!")
         return
     
@@ -35,13 +41,13 @@ async def login_instagram(client, message: Message):
 
     try:
         L.login(USERNAME, PASSWORD)
-        L.save_session_to_file(SESSION_FILE)  # ✅ Session manually save karo
+        L.save_session_to_file(SESSION_FILE)  # ✅ Save session in the correct directory
         await message.reply_text("✅ Login successful & session saved!")
     except instaloader.exceptions.TwoFactorAuthRequiredException:
-        otp_required = True
         await message.reply_text("🔢 Enter OTP using `/otp <code>`")
     except Exception as e:
         await message.reply_text(f"❌ Login failed: {e}")
+
 
 # ✅ /otp - Handle OTP Input
 @app.on_message(filters.command("otp"))
@@ -100,9 +106,9 @@ async def download_instagram(client, message: Message):
     # ✅ Instaloader Instance
     L = instaloader.Instaloader()
 
-    # ✅ Session Load Karo Agar File Hai
     if os.path.exists(SESSION_FILE):
-        L.load_session_from_file(USERNAME)
+        L.load_session_from_file(USERNAME, SESSION_FILE)
+
 
     # ✅ Create "downloads" Folder
     download_path = "downloads"

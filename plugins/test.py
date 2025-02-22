@@ -10,18 +10,21 @@ insta_client = InstaClient()
 
 def ensure_logged_in():
     """ Ensure Instagram is logged in before making requests """
-    if insta_client.get_settings():  
-        return  # Already logged in
-
     if os.path.exists(INSTAGRAM_SESSION_FILE):
         try:
             insta_client.load_settings(INSTAGRAM_SESSION_FILE)
+            insta_client.get_timeline_feed()  # ✅ Test login validity
+            return  # If session is valid, return
         except Exception:
             pass  # Ignore errors and proceed to login
 
-    if not insta_client.get_settings():  # If still not logged in
+    # ✅ If session fails, do fresh login
+    try:
         insta_client.login("loveis8507", "Ansh12345@23")
         insta_client.dump_settings(INSTAGRAM_SESSION_FILE)
+    except Exception as e:
+        print(f"❌ Instagram Login Failed: {e}")
+
 
 @bot.on_message(filters.command("export_session"))
 def export_session(client, message):
@@ -42,10 +45,16 @@ def handle_document_upload(client, message):
     document = message.document
     if document.file_name == "session.json":
         file_path = bot.download_media(message)
-        os.rename(file_path, INSTAGRAM_SESSION_FILE)
-        message.reply_text("✅ Session file imported successfully!")
+        
+        try:
+            insta_client.load_settings(file_path)  # ✅ Validate session before saving
+            os.rename(file_path, INSTAGRAM_SESSION_FILE)
+            message.reply_text("✅ Session file imported successfully & validated!")
+        except Exception:
+            message.reply_text("❌ Invalid session file. Please try again.")
     else:
         message.reply_text("⚠️ Invalid file. Please send `session.json`.")
+
 
 @bot.on_message(filters.command("profile"))
 def profile_command(client, message):

@@ -144,8 +144,7 @@ async def export_session(client, message: Message):
         session_data = f.read()
 
 
-    await message.reply_text(f"```{session_data}```", quote=True)
-
+    await message.reply_document(SESSION_FILE, caption="📂 Here is your session file!")
 
 @app.on_message(filters.command("session_import"))
 async def import_session(client, message: Message):

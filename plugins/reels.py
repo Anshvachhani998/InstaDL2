@@ -45,6 +45,7 @@ async def download_content(client, message, url, user_id):
         await client.send_message(LOG_CHANNEL, error_message)
         await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
 
+
 @app.on_message(filters.regex(INSTAGRAM_REGEX))
 async def handle_instagram_link(client, message):
     user_id = message.from_user.id
@@ -74,10 +75,13 @@ async def handle_instagram_link(client, message):
 async def check_subscription(client, callback_query):
     user_id = callback_query.from_user.id
     url = callback_query.data.split(":")[2]  # Extract URL from callback data
-    message = callback_query.message
-
+    
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
-        await message.edit_text("**✅Thank you for joining! Now send an Instagram link to download.**")        
-       
+        # After confirming subscription, download the content
+        await callback_query.answer("✅ You are subscribed. Now processing your request...", show_alert=True)
+        
+        # Use the same download logic
+        await download_content(client, callback_query.message, url, user_id)
+        
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

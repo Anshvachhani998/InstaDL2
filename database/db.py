@@ -30,7 +30,13 @@ class Database:
 
     async def get_all_users(self):
         return self.col.find({})
-        
+
+    async def get_total_downloads(self):  
+        result = await self.db["downloads"].find_one({}, {"total_downloads": 1})
+        if result:
+            return result.get("total_downloads", 0)
+        return 0
+    
     async def total_users_count(self):
         count = await self.col.count_documents({})
         return count

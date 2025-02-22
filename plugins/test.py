@@ -4,11 +4,9 @@ import shutil
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
-app = Client  # Client ka object sahi se banao
+app = Client # ✅ Client object properly initialize karo
 
-# Instaloader Instance
-L = instaloader.Instaloader()
-
+# ✅ Instagram Username
 USERNAME = "loveis8507"
 SESSION_FILE = f"session-{USERNAME}"
 
@@ -18,10 +16,12 @@ PASSWORD = None  # Store Password Temporarily
 # ✅ /login <password> - Instagram Login Command
 @app.on_message(filters.command("login"))
 async def login_instagram(client, message: Message):
-    global otp_required, PASSWORD, L
+    global otp_required, PASSWORD
     
+    L = instaloader.Instaloader()
+
     if os.path.exists(SESSION_FILE):
-        L.load_session_from_file(USERNAME)  # Session File Load Karo
+        L.load_session_from_file(USERNAME)
         await message.reply_text("✅ Logged in using saved session!")
         return
     
@@ -33,7 +33,7 @@ async def login_instagram(client, message: Message):
 
     try:
         L.login(USERNAME, PASSWORD)
-        L.save_session_to_file(SESSION_FILE)  # ✅ Session ko manually save karo
+        L.save_session_to_file(SESSION_FILE)  # ✅ Session manually save karo
         await message.reply_text("✅ Login successful & session saved!")
     except instaloader.exceptions.TwoFactorAuthRequiredException:
         otp_required = True
@@ -44,21 +44,23 @@ async def login_instagram(client, message: Message):
 # ✅ /otp - Handle OTP Input
 @app.on_message(filters.command("otp"))
 async def handle_otp(client, message: Message):
-    global otp_required, PASSWORD, L
+    global otp_required
     
     if not otp_required:
-        await message.reply_text("❌ OTP is not required. Use /login first.")
+        await message.reply_text("❌ OTP is not required. Use `/login` first.")
         return
     
     if len(message.command) < 2:
-        await message.reply_text("Usage: /otp <code>")
+        await message.reply_text("Usage: `/otp <code>`")
         return
 
     otp_code = message.command[1]
-
+    
+    L = instaloader.Instaloader()
+    
     try:
         L.two_factor_login(otp_code)
-        L.save_session_to_file(SESSION_FILE)  # ✅ OTP Verify hone ke baad session save karo
+        L.save_session_to_file(SESSION_FILE)
         otp_required = False
         await message.reply_text("✅ OTP verified & login successful!")
     except Exception as e:
@@ -81,9 +83,6 @@ async def clear_session(client, message: Message):
     else:
         await message.reply_text("❌ No session file found.")
 
-
-
-
 # ✅ /dl <instagram_url> - Download Instagram Reel/Post
 @app.on_message(filters.command("dl"))
 async def download_instagram(client, message: Message):
@@ -92,35 +91,41 @@ async def download_instagram(client, message: Message):
         return
 
     url = message.command[1]
-    shortcode = url.split("/")[-2]  # Extract Instagram Post ID
+    shortcode = url.split("/")[-2]  # ✅ Extract Instagram Post ID
 
     await message.reply_text("🔄 Downloading... Please wait!")
 
     # ✅ Instaloader Instance
     L = instaloader.Instaloader()
 
-    # ✅ Agar session file hai toh load karo
+    # ✅ Session Load Karo Agar File Hai
     if os.path.exists(SESSION_FILE):
         L.load_session_from_file(USERNAME)
 
+    # ✅ Create "downloads" Folder
+    download_path = "downloads"
+    os.makedirs(download_path, exist_ok=True)
+
     try:
-        # ✅ Download Reel/Post
-        L.download_post(instaloader.Post.from_shortcode(L.context, shortcode), target="downloads")
+        # ✅ Download Post/Reel
+        post = instaloader.Post.from_shortcode(L.context, shortcode)
+        L.download_post(post, target=download_path)
 
         # ✅ Find the downloaded video file
-        for file in os.listdir("downloads"):
+        video_file = None
+        for file in os.listdir(download_path):
             if file.endswith(".mp4"):
-                video_path = os.path.join("downloads", file)
+                video_file = os.path.join(download_path, file)
+                break
 
-                # ✅ Upload to Telegram
-                await message.reply_video(video_path, caption="✅ Reel downloaded successfully!")
+        if video_file:
+            # ✅ Upload to Telegram
+            await message.reply_video(video_file, caption="✅ Reel downloaded successfully!")
 
-                # ✅ Clean up the folder
-                shutil.rmtree("downloads")
-                return
-
-        await message.reply_text("❌ Download failed. No video found!")
+            # ✅ Clean up the folder
+            shutil.rmtree(download_path)
+        else:
+            await message.reply_text("❌ Download failed. No video found!")
 
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
-        

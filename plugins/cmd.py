@@ -79,7 +79,7 @@ async def about(client, callback_query):
         "🔹 **No watermark, HD quality**\n\n"
         "**💖 Enjoy & Share!**",
         reply_markup=buttons,
-        parse_mode=ParseMode.MARKDOWN
+        disable_web_page_preview=True
     )
 
 @Client.on_message(filters.command("about"))
@@ -92,7 +92,7 @@ async def aboutcmd(client, message):
         "🎥 **Supports:** Reels, Posts, IGTV\n"
         "🔹 **No watermark, HD quality**\n\n"
         "**💖 Enjoy & Share!**",
-        parse_mode=enums.ParseMode.Markdown
+        disable_web_page_preview=True
     )
 
 @Client.on_message(filters.command("help"))

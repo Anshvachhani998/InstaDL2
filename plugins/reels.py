@@ -36,7 +36,7 @@ async def download_content(client, message, url, user_id):
                 "▫️ A data retrieval error occurred.\n"
                 "▫️ The content might be restricted due to age or copyright limitations.\n\n"
                 "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
-                parse_mode=enums.ParseMode.HTML
+                disable_web_page_preview=True
             )
 
             return

@@ -2,9 +2,10 @@ import asyncio
 import os
 import re
 from pyrogram import Client, filters
-from pyrogram.types import InputFile, Message
+from pyrogram.types import Message
 from moviepy.editor import VideoFileClip
 import instaloader
+from pyrogram import types
 
 # Configuration settings
 INST_LOGIN = "loveis8507"
@@ -79,7 +80,7 @@ async def download_instagram_content(message: Message):
                         video_clip = VideoFileClip(file_path)
                         width, height = video_clip.size
 
-                        sent_message = await message.reply_video(video=InputFile(file_path),
+                        sent_message = await message.reply_video(video=types.InputFile(file_path),
                                                                   caption=caption_text,
                                                                   width=width, height=height)
 
@@ -94,10 +95,10 @@ async def download_instagram_content(message: Message):
                 for file in files:
                     file_path = os.path.join(root, file)
                     if file.endswith(('.jpg', '.jpeg', '.png')):
-                        media_group.append(InputFile(file_path))
+                        media_group.append(types.InputFile(file_path))
                         batch += 1
                     elif file.endswith('.mp4'):
-                        media_group.append(InputFile(file_path))
+                        media_group.append(types.InputFile(file_path))
                         batch += 1
 
                     if batch == batch_size:

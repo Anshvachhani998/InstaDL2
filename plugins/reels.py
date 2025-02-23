@@ -46,12 +46,13 @@ async def download_content(client, message, url, user_id, mention=None):
         
         video_url = fetch_video_url(url)
         if not video_url:
-            await downloading_msg.edit(
+            insta = await downloading_msg.edit(
                 "**⛔️ Unable to retrieve publication information.**\n\n"
                 "**ᴍᴇᴛʜᴏᴅ 2 ꜰᴏʀ ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ... 💜**",
                 disable_web_page_preview=True
             )
             await advance_content(client, message, url, user_id)
+            await insta.delete()
             return
         
         caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"

@@ -31,10 +31,8 @@ def advance_fatch_url(instagram_url):
     """API endpoint se direct media URL fetch karega"""
     try:
         response = requests.get(ADVANCE_API.format(instagram_url))
-        data = response.json()
-        logger.info(f"data : {data}")
-        media_urls = data.get("media", [])
-        logger.info(f"{media_urls}")
+        data = response.json()        
+        media_urls = data.get("media", [])        
         return media_urls if media_urls else None  # Jo bhi list mile, wo return hoga
     except Exception:
         return None

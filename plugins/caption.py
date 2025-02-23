@@ -19,25 +19,23 @@ async def caption_cmd(client, message: Message):
         await force_subscribe_message(client, message, user_id)
         return
 
-    # ⚠ Fix: Agar koi username provide nahi kiya toh proper reply bheje
     if len(message.command) < 2:
         await message.reply("⚡ **Incorrect Usage!**\n\n"
-                           "🔹 To fetch an Instagram profile, use:\n`/profile <username>`\n"
-                           "🔹 Or just send an Instagram profile link.")
+                            "🔹 Use: `/caption <reel-url>`\n"
+                            "🔹 Example: `/caption https://www.instagram.com/reel/xyz123/`")
         return
 
-    username = message.command[1]
-    await fetch_instagram_caption(client, message, username)
-
+    url = message.command[1]
+    await fetch_instagram_caption(client, message, url)
 
   
 
-async def fetch_instagram_caption(client, message, username):
+async def fetch_instagram_caption(client, message, url):
     """Fetch Instagram profile details using API"""
     try:
         loading_msg = await message.reply("**🔍 Fᴇᴛᴄʜɪɴɢ Rᴇᴇʟs Cᴀᴘᴛɪᴏɴ...🩷**")
 
-        response = requests.get(API_URL.format(username))
+        response = requests.get(API_URL.format(url))
         data = response.json()
 
         if "error" in data or "caption" not in data:

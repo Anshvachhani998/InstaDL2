@@ -45,7 +45,7 @@ async def download_content(client, message, url, user_id, mention=None):
             [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
         ])
 
-        await message.reply_video(video_url, caption=caption_user, reply_markup=buttons)
+        await message.reply_video(video_url, caption=caption_user, reply_markup=buttons, supports_streaming=True)
 
         # `mention` ko check karenge, agar None hai toh `message.from_user.mention` use karenge
         user_mention = mention or message.from_user.mention  

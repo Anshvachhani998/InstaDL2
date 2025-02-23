@@ -3,6 +3,10 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 import requests
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
 
 API_URL = "https://url-short-web.onrender.com/profile?username={}"
 
@@ -15,8 +19,11 @@ async def profile_cmd(client, message: Message):
         await force_subscribe_message(client, message, user_id)
         return
 
+    # ⚠ Fix: Agar koi username provide nahi kiya toh proper reply bheje
     if len(message.command) < 2:
-        await message.reply("❌ **Usage:** `/profile <username>`")
+        await message.reply("❌ **Usage:** `/profile <username>`\n\n"
+                           "🔹 Example: `/profile ans_team`\n"
+                           "🔹 Or just send an Instagram profile link.")
         return
 
     username = message.command[1]

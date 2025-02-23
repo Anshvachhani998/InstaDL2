@@ -62,7 +62,7 @@ async def fetch_instagram_caption(client, message, url):
         user_mention = message.from_user.mention
         dump_caption = f"**✅ Cᴀᴘᴛɪᴏɴ ꜱᴇᴀʀᴄʜᴇᴅ ʙʏ:** {user_mention}\n**📌 ᴜʀʟ:** [URL](https://instagram.com/{url})"
 
-        await client.send_message(DUMP_CHANNEL, dump_caption)
+        await client.send_message(DUMP_CHANNEL, dump_caption, disable_web_page_preview=True)
         
         await loading_msg.delete()
 

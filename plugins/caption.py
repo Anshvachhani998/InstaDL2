@@ -13,7 +13,7 @@ API_URL = "https://url-short-web.onrender.com/caption?url={}"
 def fetch_caption(instagram_url):
     """API endpoint se direct video URL fetch karega (Only MP4)"""
     try:
-        response = requests.get(API_ENDPOINT.format(instagram_url))
+        response = requests.get(API_URL.format(instagram_url))
         data = response.json()       
         return data.get("caption")
     except Exception:

@@ -10,7 +10,7 @@ from database.db import db
 app = Client
 
 ADVANCE_API = "https://url-short-web.onrender.com/story?url={}"
-INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(story)/[^\s?]+)"
+INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(stories)/[^\s?]+)"
 
 
 

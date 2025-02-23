@@ -90,3 +90,17 @@ async def force_subscribe_message(client, message, user_id):
         reply_markup=buttons
     )
   
+
+
+
+@app.on_callback_query(filters.regex("check_sub"))
+async def check_subscription(client, callback_query):
+    user_id = callback_query.from_user.id  # Correct user ID
+    mention = callback_query.from_user.mention  # Correct user mention
+    
+    if await is_subscribed(client, user_id, FORCE_CHANNEL):
+        an = await callback_query.message.edit_text("**🙏 Tʜᴀɴᴋs Fᴏʀ Jᴏɪɴɪɴɢ! 🔓 Aᴄᴄᴇss Bᴏᴛ**")
+        
+    else:
+        await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)
+

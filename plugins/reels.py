@@ -48,11 +48,7 @@ async def download_content(client, message, url, user_id, mention=None):
         if not video_url:
             await downloading_msg.edit(
                 "**⛔️ Unable to retrieve publication information.**\n\n"
-                "This could be due to the following reasons:\n"
-                "▫️ The account is private or closed.\n"
-                "▫️ A data retrieval error occurred.\n"
-                "▫️ The content might be restricted due to age or copyright limitations.\n\n"
-                "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
+                "**ᴍᴇᴛʜᴏᴅ 2 ꜰᴏʀ ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ... 💜**",
                 disable_web_page_preview=True
             )
             await advance_content(client, message, url, user_id)

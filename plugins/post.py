@@ -2,10 +2,11 @@ import random
 import requests
 import re
 from pyrogram import Client, filters, enums
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto, InputMediaVideo
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
+ 
 
 app = Client
 
@@ -25,13 +26,17 @@ def fetch_video_url(instagram_url):
 
 
 def advance_fatch_url(instagram_url):
-    """API endpoint se direct video URL fetch karega"""
+    """API endpoint se direct media URL fetch karega"""
     try:
         response = requests.get(ADVANCE_API.format(instagram_url))
         data = response.json()
-        return data.get("media")
+        
+        media_urls = data.get("media", [])
+        
+        return media_urls if media_urls else None  # Jo bhi list mile, wo return hoga
     except Exception:
         return None
+
         
 async def download_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
@@ -71,10 +76,11 @@ async def download_content(client, message, url, user_id, mention=None):
 async def advance_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
-        downloading_msg = await message.reply("**ᴍᴇᴛʜᴏᴅ 2 Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
+        downloading_msg = await message.reply("**ᴍᴇᴛʜᴏᴅ 2 Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷**")
         
-        video_url = advance_fatch_url(url)
-        if not video_url:
+        media_urls = advance_fatch_url(url)  # API se media URLs fetch karna
+        
+        if not media_urls:
             await downloading_msg.edit(
                 "** Unable to retrieve publication information.**\n\n"
                 "This could be due to the following reasons:\n"
@@ -86,25 +92,38 @@ async def advance_content(client, message, url, user_id, mention=None):
             )
             return
         
-        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
+        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Pᴏꜱᴛ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
         ])
+        
+        # Agar ek hi post hai toh sirf ek bhejo
+        if len(media_urls) == 1:
+            media_url = media_urls[0]
+            if ".mp4" in media_url:
+                await message.reply_video(media_url, caption=caption_user, reply_markup=buttons)
+            else:
+                await message.reply_photo(media_url, caption=caption_user, reply_markup=buttons)
+        else:
+            # Agar multiple media hain toh sab bhejo
+            album = []
+            for media_url in media_urls:
+                if ".mp4" in media_url:
+                    album.append(InputMediaVideo(media_url))
+                else:
+                    album.append(InputMediaPhoto(media_url))
+            
+            await message.reply_media_group(album)
 
-        await message.reply_video(video_url, caption=caption_user, reply_markup=buttons)
-
-        # `mention` ko check karenge, agar None hai toh `message.from_user.mention` use karenge
-        user_mention = mention or message.from_user.mention  
-
-        await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")
-        await db.increment_download_count()
         await downloading_msg.delete()
 
     except Exception as e:
         error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
         await client.send_message(LOG_CHANNEL, error_message)
-        await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
+        await message.reply("⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.")
 
+
+    
 
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))

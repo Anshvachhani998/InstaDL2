@@ -2,8 +2,8 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 import requests
 
-API_URL = "https://instaapi-green.vercel.app/profile?username={}"  # Replace with your working API
 
+API_URL = "https://url-short-web.onrender.com/profile?username={}"
 
 @Client.on_message(filters.command("profile"))
 async def profile_cmd(client, message: Message):
@@ -38,7 +38,7 @@ async def profile_link_handler(client, message: Message):
 async def fetch_instagram_profile(client, message, username):
     """Fetch Instagram profile details using API"""
     try:
-        loading_msg = await message.reply("🔍 **Fetching Instagram Profile...**")
+        loading_msg = await message.reply("**🔍 ꜰᴇᴛᴄʜɪɴɢ ɪɴꜱᴛᴀɢʀᴀᴍ ᴘʀᴏꜰɪʟᴇ 🩷**")
 
         response = requests.get(API_URL.format(username))
         data = response.json()
@@ -47,8 +47,8 @@ async def fetch_instagram_profile(client, message, username):
             await loading_msg.edit(f"❌ **Error:** {data['error']}")
             return
 
-        full_name = data.get("full_name", "N/A")
-        bio = data.get("biography", "N/A")
+        full_name = data.get("name", "N/A")
+        bio = data.get("bio", "N/A")
         followers = data.get("followers", "N/A")
         following = data.get("following", "N/A")
         profile_pic = data.get("profile_pic", None)

@@ -93,7 +93,7 @@ async def force_subscribe_message(client, message, user_id):
 
 
 
-@app.on_callback_query(filters.regex("check_sub"))
+@Client.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):
     user_id = callback_query.from_user.id  # Correct user ID
     mention = callback_query.from_user.mention  # Correct user mention

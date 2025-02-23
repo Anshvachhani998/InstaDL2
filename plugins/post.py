@@ -6,7 +6,9 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMedi
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
- 
+import logging 
+
+logger = logging.getLogger(__name__)
 
 app = Client
 
@@ -30,9 +32,9 @@ def advance_fatch_url(instagram_url):
     try:
         response = requests.get(ADVANCE_API.format(instagram_url))
         data = response.json()
-        
+        logging.INFO(f"data : {data}")
         media_urls = data.get("media", [])
-        
+        logging.INFO(f"{media_urls}")
         return media_urls if media_urls else None  # Jo bhi list mile, wo return hoga
     except Exception:
         return None

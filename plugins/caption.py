@@ -10,6 +10,15 @@ logger.setLevel(logging.ERROR)
 
 API_URL = "https://url-short-web.onrender.com/caption?url={}"
 
+def fetch_caption(instagram_url):
+    """API endpoint se direct video URL fetch karega (Only MP4)"""
+    try:
+        response = requests.get(API_ENDPOINT.format(instagram_url))
+        data = response.json()       
+        return data.get("caption")
+    except Exception:
+        return None
+        
 @Client.on_message(filters.command("caption"))
 async def caption_cmd(client, message: Message):
     """Handle /caption <reel url> command with force subscription"""
@@ -35,15 +44,13 @@ async def fetch_instagram_caption(client, message, url):
     try:
         loading_msg = await message.reply("**🔍 Fᴇᴛᴄʜɪɴɢ Rᴇᴇʟs Cᴀᴘᴛɪᴏɴ...🩷**")
 
-        response = requests.get(API_URL.format(url))
-        data = response.json()
+        caption = fetch_caption(url)
 
-        if "error" in data or "caption" not in data:
+        if not caption:
             await loading_msg.edit("⚠️ Cᴀᴘᴛɪᴏɴ Nᴏᴛ Fᴏᴜɴᴅ!")
             return
 
-        caption = data["caption"]
-
+        
         buttons = InlineKeyboardMarkup([        
             [InlineKeyboardButton("🌟 Update Channel", url="https://t.me/AnS_Bots")]
         ])

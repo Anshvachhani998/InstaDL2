@@ -6,14 +6,6 @@ from utils import get_invite_link, is_subscribed
 import logging
 
 logger = logging.getLogger(__name__)
-loggerfrom pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-import requests
-from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
-from utils import get_invite_link, is_subscribed
-import logging
-
-logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 API_URL = "https://url-short-web.onrender.com/profile?username={}"

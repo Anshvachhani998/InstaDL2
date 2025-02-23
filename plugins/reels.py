@@ -11,12 +11,19 @@ app = Client
 
 API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
 
+
+
 def fetch_video_url(instagram_url):
-    """API endpoint se direct video URL fetch karega"""
+    """API endpoint se direct video URL fetch karega (Only MP4)"""
     try:
         response = requests.get(API_ENDPOINT.format(instagram_url))
         data = response.json()
-        return data.get("dwn_url")
+        video_url = data.get("dwn_url")
+
+        # Check if ".mp4" exists anywhere in the URL
+        if video_url and ".mp4" in video_url:
+            return video_url
+        return None  # If it's an image or invalid URL, return None
     except Exception:
         return None
 

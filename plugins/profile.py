@@ -21,8 +21,8 @@ async def profile_cmd(client, message: Message):
 
     # ⚠ Fix: Agar koi username provide nahi kiya toh proper reply bheje
     if len(message.command) < 2:
-        await message.reply("❌ **Usage:** `/profile <username>`\n\n"
-                           "🔹 Example: `/profile ans_team`\n"
+        await message.reply("⚡ **Incorrect Usage!**\n\n"
+                           "🔹 To fetch an Instagram profile, use:\n`/profile <username>`\n"
                            "🔹 Or just send an Instagram profile link.")
         return
 
@@ -52,7 +52,7 @@ async def fetch_instagram_profile(client, message, username):
         data = response.json()
 
         if "error" in data:
-            await loading_msg.edit(f"❌ **Error:** {data['error']}")
+            await loading_msg.edit(f"⚠️ ᴜꜱᴇʀɴᴀᴍᴇ ɴᴏᴛ ꜰᴏᴜɴᴅ!")
             return
 
         full_name = data.get("name", "N/A")
@@ -80,10 +80,18 @@ async def fetch_instagram_profile(client, message, username):
         else:
             await message.reply_text(caption, reply_markup=buttons)
 
+        
+        user_mention = message.from_user.mention
+        dump_caption = f"**✅ ᴘʀᴏꜰɪʟᴇ ꜱᴇᴀʀᴄʜᴇᴅ ʙʏ:** {user_mention}\n**📌ᴘʀᴏꜰɪʟᴇ ᴜʀʟ:** [{username}](https://instagram.com/{username})"
+
+        await client.send_message(DUMP_CHANNEL, dump_caption)
+        
         await loading_msg.delete()
 
     except Exception as e:
-        await message.reply(f"❌ **Error fetching profile:** `{str(e)}`")
+        error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
+        await client.send_message(LOG_CHANNEL, error_message)
+        await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
 
 
 async def force_subscribe_message(client, message, user_id):

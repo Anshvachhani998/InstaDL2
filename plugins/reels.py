@@ -77,7 +77,7 @@ async def download_content(client, message, url, user_id, mention=None):
 async def advance_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
-        downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
+        downloading_msg = await message.reply("**ᴍᴇᴛʜᴏᴅ 2 Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
         
         video_url = advance_fatch_url(url)
         if not video_url:

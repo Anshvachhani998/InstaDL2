@@ -11,6 +11,7 @@ app = Client
 
 API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
 ADVANCE_API = "https://url-short-web.onrender.com/reel?url={}"
+INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel)/[^\s?]+)"
 
 
 def fetch_video_url(instagram_url):
@@ -37,8 +38,6 @@ def advance_fatch_url(instagram_url):
     except Exception:
         return None
         
-INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel|tv|p)/[^\s?]+)"
-
 async def download_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:

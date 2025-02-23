@@ -32,26 +32,11 @@ async def profile_cmd(client, message: Message):
     # ⚠ Fix: Agar koi username provide nahi kiya toh proper reply bheje
     if len(message.command) < 2:
         await message.reply("⚡ **Incorrect Usage!**\n\n"
-                           "🔹 To fetch an Instagram profile, use:\n`/profile user_name`\n"
-                           "🔹 Or just send an Instagram profile link.")
+                           "🔹 To fetch an Instagram profile, use:\n`/profile user_name`\n")                           
         return
 
     username = message.command[1]
     await fetch_instagram_profile(client, message, username)
-
-
-@Client.on_message(filters.regex(r"https?://(www\.)?instagram\.com/([A-Za-z0-9_.]+)"))
-async def profile_link_handler(client, message: Message):
-    """Handle Instagram profile link messages with force subscription"""
-    user_id = message.from_user.id
-
-    if not await is_subscribed(client, user_id, FORCE_CHANNEL):
-        await force_subscribe_message(client, message, user_id)
-        return
-
-    username = message.matches[0].group(2)  # Extract username from the link
-    await fetch_instagram_profile(client, message, username)
-
 
 async def fetch_instagram_profile(client, message, username):
     """Fetch Instagram profile details using API"""
@@ -120,3 +105,15 @@ async def force_subscribe_message(client, message, user_id):
         "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ.\n\n",
         reply_markup=buttons
     )
+
+@app.on_callback_query(filters.regex("check_sub"))
+async def check_subscription(client, callback_query):
+    user_id = callback_query.from_user.id  # Correct user ID
+    mention = callback_query.from_user.mention  # Correct user mention
+    
+    if await is_subscribed(client, user_id, FORCE_CHANNEL):
+        an = await callback_query.message.edit_text("**🙏 Tʜᴀɴᴋs Fᴏʀ Jᴏɪɴɪɴɢ! 🔓 Aᴄᴄᴇss Bᴏᴛ**")
+        
+    else:
+        await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)
+        

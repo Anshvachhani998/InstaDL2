@@ -19,12 +19,13 @@ logger.setLevel(logging.ERROR)
 API_URL = "https://url-short-web.onrender.com/profile?username={}"
 
 def fetch_profile(username):
-    """API endpoint se direct video URL fetch karega"""
+    """API se Instagram profile details fetch karega"""
     try:
         response = requests.get(API_URL.format(username))
-        data = response.json()
-        return data.get("")
-    except Exception:
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except Exception as e:      
         return None
         
 @Client.on_message(filters.command("profile"))
@@ -71,11 +72,11 @@ async def fetch_instagram_profile(client, message, username):
             await loading_msg.edit(f"⚠️ ᴜꜱᴇʀɴᴀᴍᴇ ɴᴏᴛ ꜰᴏᴜɴᴅ!")
             return
 
-        full_name = data.get("name", "N/A")
-        bio = data.get("bio", "N/A")
-        followers = data.get("followers", "N/A")
-        following = data.get("following", "N/A")
-        profile_pic = data.get("profile_pic", None)
+        full_name = profile.get("name", "N/A")
+        bio = profile.get("bio", "N/A")
+        followers = profile.get("followers", "N/A")
+        following = profile.get("following", "N/A")
+        profile_pic = profile.get("profile_pic", None)
 
         caption = (
             f"👤 **Instagram Profile:** [{username}](https://instagram.com/{username})\n\n"

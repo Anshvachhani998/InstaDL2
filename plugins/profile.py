@@ -32,7 +32,7 @@ async def profile_cmd(client, message: Message):
     # ⚠ Fix: Agar koi username provide nahi kiya toh proper reply bheje
     if len(message.command) < 2:
         await message.reply("⚡ **Incorrect Usage!**\n\n"
-                           "🔹 To fetch an Instagram profile, use:\n`/profile <username>`\n"
+                           "🔹 To fetch an Instagram profile, use:\n`/profile user_name`\n"
                            "🔹 Or just send an Instagram profile link.")
         return
 

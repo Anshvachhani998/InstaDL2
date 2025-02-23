@@ -43,7 +43,7 @@ def advance_fatch_url(instagram_url):
 async def download_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
-        downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
+        downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷**")
         
         video_url = fetch_video_url(url)
         if not video_url:
@@ -56,7 +56,7 @@ async def download_content(client, message, url, user_id, mention=None):
             await insta.delete()
             return
         
-        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
+        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ ᴘᴏꜱᴛ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
         ])
@@ -78,7 +78,7 @@ async def download_content(client, message, url, user_id, mention=None):
 async def advance_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
-        downloading_msg = await message.reply("**ᴍᴇᴛʜᴏᴅ 2 Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷**")
+        downloading_msg = await message.reply("**Mᴇᴛʜᴏᴅ 2 Fᴏʀ Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷**")
         
         media_urls = advance_fatch_url(url)  # API se media URLs fetch karna
         
@@ -117,7 +117,8 @@ async def advance_content(client, message, url, user_id, mention=None):
                 album.append(media)
 
             await message.reply_media_group(album)
-
+            
+        await db.increment_download_count()
         await downloading_msg.delete()
 
     except Exception as e:

@@ -107,14 +107,15 @@ async def advance_content(client, message, url, user_id, mention=None):
             else:
                 await message.reply_photo(media_url, caption=caption_user, reply_markup=buttons)
         else:
-            # Agar multiple media hain toh sab bhejo
+            # Agar multiple media hain toh pehle media ke saath caption bhejo
             album = []
-            for media_url in media_urls:
+            for i, media_url in enumerate(media_urls):
                 if ".mp4" in media_url:
-                    album.append(InputMediaVideo(media_url))
+                    media = InputMediaVideo(media_url, caption=caption_user if i == 0 else "")
                 else:
-                    album.append(InputMediaPhoto(media_url))
-            
+                    media = InputMediaPhoto(media_url, caption=caption_user if i == 0 else "")
+                album.append(media)
+
             await message.reply_media_group(album)
 
         await downloading_msg.delete()

@@ -76,7 +76,7 @@ async def download_content(client, message, url, user_id, mention=None):
 async def advance_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
-        downloading_msg = await message.reply("**ᴍᴇᴛʜᴏᴅ 2 Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
+        downloading_msg = await message.reply("**ᴍᴇᴛʜᴏᴅ 2 Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Iɢᴛᴠ 🩷**")
         
         video_url = advance_fatch_url(url)
         if not video_url:
@@ -89,7 +89,7 @@ async def advance_content(client, message, url, user_id, mention=None):
                 "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
                 disable_web_page_preview=True
             )            
-            error_message =f"**Error**\n **{url}**\n⚠️ Cᴀᴘᴛɪᴏɴ Nᴏᴛ Fᴏᴜɴᴅ"
+            error_message =f"**Error**\n **{url}**\n⚠️ Iɢᴛᴠ Nᴏᴛ Fᴏᴜɴᴅ"
             await client.send_message(LOG_CHANNEL, error_message)
            
             return

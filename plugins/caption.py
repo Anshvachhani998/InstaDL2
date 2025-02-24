@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
-API_URL = "https://url-short-web.onrender.com/caption?url={}"
+API_URL = "https://instadl-api.koyeb.app/caption?url={}"
 
 def fetch_caption(instagram_url):
     """API endpoint se direct video URL fetch karega (Only MP4)"""

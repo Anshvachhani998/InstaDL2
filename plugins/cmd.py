@@ -57,13 +57,15 @@ async def help(client, callback_query):
     
     await callback_query.message.edit_text(
         "**❓ Help Guide**\n\n"
-        "📌 Just send any Instagram Reel, Post, or IGTV link here.\n"
+        "📌 Just send any Instagram **Reel, Post, Story, or IGTV** link here.\n"
         "🔹 The bot will instantly download & send it to you in **HD quality**.\n"
         "🚀 **Super Fast & Secure!**\n\n"
-        "🎥 **For manual download, use** `/dl <link>` **command.**\n\n" 
+        "🎥 **For manual download, use** `/dl <link>` **command.**\n"
+        "👤 **To fetch an Instagram profile, use** `/profile <username>` **command.**\n\n"
         "💖 **Enjoy hassle-free downloads!**",
         reply_markup=buttons
     )
+
 
 @Client.on_callback_query(filters.regex("about"))
 async def about(client, callback_query):
@@ -99,12 +101,13 @@ async def aboutcmd(client, message):
 async def helpcmd(client, message):
     
     await message.reply(
-        "**❓ Help Guide**\n\n"
-        "📌 Just send any Instagram Reel, Post, or IGTV link here.\n"
+        ""**❓ Help Guide**\n\n"
+        "📌 Just send any Instagram **Reel, Post, Story, or IGTV** link here.\n"
         "🔹 The bot will instantly download & send it to you in **HD quality**.\n"
         "🚀 **Super Fast & Secure!**\n\n"
-        "🎥 **For manual download, use** `/dl <link>` **command.**\n\n" 
-        "💖 **Enjoy hassle-free downloads!**"        
+        "🎥 **For manual download, use** `/dl <link>` **command.**\n"
+        "👤 **To fetch an Instagram profile, use** `/profile <username>` **command.**\n\n"
+        "💖 **Enjoy hassle-free downloads!**"
     )
 
 @Client.on_message(filters.command("dl"))

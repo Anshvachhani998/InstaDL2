@@ -48,6 +48,8 @@ async def fetch_instagram_caption(client, message, url):
 
         if not caption:
             await loading_msg.edit("⚠️ Cᴀᴘᴛɪᴏɴ Nᴏᴛ Fᴏᴜɴᴅ!")
+            error_message =f"**Error**\n **{url}**\n⚠️ Cᴀᴘᴛɪᴏɴ Nᴏᴛ Fᴏᴜɴᴅ"
+            await client.send_message(LOG_CHANNEL, error_message)
             return
 
         

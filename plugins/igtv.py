@@ -10,7 +10,7 @@ from database.db import db
 app = Client
 
 API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
-ADVANCE_API = "https://url-short-web.onrender.com/reel?url={}"
+ADVANCE_API = "https://instadl-api.koyeb.app/reel?url={}"
 INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(tv)/[^\s?]+)"
 
 

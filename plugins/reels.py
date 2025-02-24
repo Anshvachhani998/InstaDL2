@@ -10,7 +10,7 @@ from database.db import db
 app = Client
 
 API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
-ADVANCE_API = "https://url-short-web.onrender.com/reel?url={}"
+ADVANCE_API = "https://instadl-api.koyeb.app/reel?url={}"
 INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel)/[^\s?]+)"
 
 
@@ -89,7 +89,7 @@ async def advance_content(client, message, url, user_id, mention=None):
                 "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
                 disable_web_page_preview=True
             )
-            error_message =f"**Error**\n **{url}**\n⚠️ Cᴀᴘᴛɪᴏɴ Nᴏᴛ Fᴏᴜɴᴅ"
+            error_message =f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"
             await client.send_message(LOG_CHANNEL, error_message)           
             return
         

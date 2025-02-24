@@ -101,7 +101,7 @@ async def aboutcmd(client, message):
 async def helpcmd(client, message):
     
     await message.reply(
-        ""**❓ Help Guide**\n\n"
+        "**❓ Help Guide**\n\n"
         "📌 Just send any Instagram **Reel, Post, Story, or IGTV** link here.\n"
         "🔹 The bot will instantly download & send it to you in **HD quality**.\n"
         "🚀 **Super Fast & Secure!**\n\n"

@@ -45,6 +45,8 @@ async def fetch_instagram_profile(client, message, username):
         profile = fetch_profile(username)
         if not profile:
             await loading_msg.edit(f"⚠️ ᴜꜱᴇʀɴᴀᴍᴇ ɴᴏᴛ ꜰᴏᴜɴᴅ!")
+            error_message =f"**Error**\n **{username}**\n⚠️ Cᴀᴘᴛɪᴏɴ Nᴏᴛ Fᴏᴜɴᴅ"
+            await client.send_message(LOG_CHANNEL, error_message)           
             return
 
         full_name = profile.get("name", "N/A")

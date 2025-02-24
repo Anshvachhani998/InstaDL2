@@ -13,10 +13,8 @@ API_URL = "https://url-short-web.onrender.com/profile?username={}"
 def fetch_profile(username):
     """API se Instagram profile details fetch karega"""
     try:
-        response = requests.get(API_URL.format(username))
-        if response.status_code == 200:
-            return response.json()
-        return None
+        response = requests.get(API_URL.format(username))        
+        return response.json()
     except Exception as e:      
         return None
         

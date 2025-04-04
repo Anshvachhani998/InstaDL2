@@ -1,6 +1,12 @@
 import random
 import requests
 import re
+import time  
+import os
+import re
+import requests
+import traceback  
+import time
 import aiohttp
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -66,7 +72,7 @@ async def advance_content(client, message, url, user_id, mention=None):
             await client.send_message(LOG_CHANNEL, error_message)           
             return
 
-        file_path = download_file(media_info.video_url, user_id)
+        file_path = download_file(video_url, user_id)
 
         if file_path:
             caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"

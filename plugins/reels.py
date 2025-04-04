@@ -82,9 +82,47 @@ async def advance_content(client, message, url, user_id, mention=None):
         await downloading_msg.delete()
 
     except Exception as e:
-        error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
-        await client.send_message(LOG_CHANNEL, error_message)
-        await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
+        try:
+            # Re-try downloading and uploading the video again
+            file_path = await download_file(video_url, user_id)
+
+            if file_path:
+                # Re-attempt sending the video
+                caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʏʙ @Ans_Bots**"
+                buttons_user = InlineKeyboardMarkup([
+                    [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
+                ])
+
+                # Sending the video to the user again
+                await client.send_video(
+                    chat_id=message.chat.id,
+                    video=file_path,
+                    caption=caption_user,
+                    reply_markup=buttons_user,
+                    reply_to_message_id=message.id
+                )
+
+                # Preparing the log message and sending to dump channel again
+                user_mention = mention or message.from_user.mention
+                caption_log = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** **{user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Cʟɪᴄᴋ Hᴇʀᴇ]({url})**"
+                await client.send_video(DUMP_CHANNEL, video=file_path, caption=caption_log)
+
+                # Increment download count in DB
+                await db.increment_download_count()
+
+                # Deleting the downloading message after retry
+                await downloading_msg.delete()
+            else:
+                # If retry fails, update the downloading message
+                await downloading_msg.edit("🚨 **Failed to download video on retry.** Please contact support.")
+                error_message = f"**Error**\n **{url}**\n⚠️ Video download failed on retry"
+                await client.send_message(LOG_CHANNEL, error_message)
+
+        except Exception as retry_error:
+            # If retry fails, log the retry error and notify the user
+            retry_error_message = f"🚨 **Retry Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Retry Error:** `{str(retry_error)}`"
+            await client.send_message(LOG_CHANNEL, retry_error_message)
+            await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
 
 
 

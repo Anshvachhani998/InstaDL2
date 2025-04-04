@@ -4,19 +4,22 @@ import requests
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 import logging
+import asyncio
+        
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 API_URL = "https://instadl-api.koyeb.app/caption?url={}"
 
-def fetch_caption(instagram_url):
-    """API endpoint se direct video URL fetch karega (Only MP4)"""
+async def fetch_caption(instagram_url):
+    """API endpoint se caption fetch karega"""
     try:
-        response = requests.get(API_URL.format(instagram_url))
+        response = await asyncio.to_thread(requests.get, API_URL.format(instagram_url))
         data = response.json()       
         return data.get("caption")
-    except Exception:
+    except Exception as e:
+        logger.error(f"Caption fetch error: {e}")
         return None
         
 @Client.on_message(filters.command("caption"))
@@ -35,8 +38,7 @@ async def caption_cmd(client, message: Message):
         return
 
     url = message.command[1]
-    await fetch_instagram_caption(client, message, url)
-
+    asyncio.create_task(fetch_instagram_caption(client, message, url)
   
 
 async def fetch_instagram_caption(client, message, url):
@@ -44,7 +46,7 @@ async def fetch_instagram_caption(client, message, url):
     try:
         loading_msg = await message.reply("**🔍 Fᴇᴛᴄʜɪɴɢ Rᴇᴇʟs Cᴀᴘᴛɪᴏɴ...🩷**")
 
-        caption = fetch_caption(url)
+        caption = await fetch_caption(url)  # Asynchronous API Call
 
         if not caption:
             await loading_msg.edit("⚠️ Cᴀᴘᴛɪᴏɴ Nᴏᴛ Fᴏᴜɴᴅ!")

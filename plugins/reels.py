@@ -55,12 +55,13 @@ async def advance_content(client, message, url, user_id, mention=None):
         video_url = await advance_fatch_url(url)
         if not video_url:
             await downloading_msg.edit(
-                "🚨** Unable to retrieve publication information.**\n\n"
+                "** Unable to retrieve publication information.**\n\n"
                 "This could be due to the following reasons:\n"
                 "▫️ The account is private or closed.\n"
                 "▫️ A data retrieval error occurred.\n"
                 "▫️ The content might be restricted due to age or copyright limitations.\n\n"
-                "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
+                "⚠ **If the issue persists, please inform the admin or ask for help in our support group.**\n\n"
+                "**💬 Support Group: [SUPPORT](https://t.me/AnSBotsSupports)**",
                 disable_web_page_preview=True
             )
             error_message = f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"

@@ -134,6 +134,8 @@ async def advance_content(client, message, url, user_id, mention=None):
     
 
 
+from asyncio import create_task
+
 @app.on_message(filters.regex(INSTAGRAM_REGEX))
 async def handle_instagram_link(client, message):
     user_id = message.from_user.id
@@ -147,7 +149,7 @@ async def handle_instagram_link(client, message):
 
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("✨ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ 🔥", url=invite_link)],
-            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʀʏ ✅", callback_data=f"check_sub#{user_id}#{url}")]
+            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʏ ✅", callback_data=f"check_sub#{user_id}#{url}")]
         ])
         return await message.reply(
             "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
@@ -157,7 +159,9 @@ async def handle_instagram_link(client, message):
         )
 
     # If the user is subscribed, proceed to download directly
-    await download_content(client, message, url, user_id)
+    # We make sure the download process runs in the background so it doesn't block.
+    create_task(download_content(client, message, url, user_id))
+
 
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):

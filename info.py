@@ -10,4 +10,4 @@ DUMP_CHANNEL = int(os.getenv("DUMP_CHANNEL", "-1002379643238"))
 PORT = int(os.getenv("PORT", "8080"))
 MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://Ansh089:Ansh089@cluster0.y8tpouc.mongodb.net/?retryWrites=true&w=majority")
 MONGO_NAME = os.getenv("MONGO_NAME", "InstaDL")
-ADMINS = [5660839376]
+ADMINS = [5660839376, 6167872503]

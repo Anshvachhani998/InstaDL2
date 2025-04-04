@@ -120,7 +120,7 @@ async def advance_content(client, message, url, user_id, mention=None):
 
         except Exception as retry_error:
             # If retry fails, log the retry error and notify the user
-            retry_error_message = f"🚨 **Retry Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Retry Error:** `{str(retry_error)}`"
+            retry_error_message = f"🚨 **Retry Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Retry Error:** `j`"
             await client.send_message(LOG_CHANNEL, retry_error_message)
             await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
             

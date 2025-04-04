@@ -36,6 +36,16 @@ def download_file(url, user_id):
     return None  
 
 
+async def advance_fatch_url(instagram_url):
+    """API endpoint se direct media URL fetch karega"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(ADVANCE_API.format(instagram_url)) as response:
+                data = await response.json()
+                return data.get("video_url")
+    except Exception:
+        return None
+        
 async def advance_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
@@ -63,7 +73,7 @@ async def advance_content(client, message, url, user_id, mention=None):
             buttons = InlineKeyboardMarkup([
                 [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
             ])
-        
+            
             await client.send_video(
                 chat_id=message.chat.id,
                 video=file_path,
@@ -83,64 +93,6 @@ async def advance_content(client, message, url, user_id, mention=None):
         error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
         await client.send_message(LOG_CHANNEL, error_message)
         await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
-
-async def advance_fatch_url(instagram_url):
-    """API endpoint se direct media URL fetch karega"""
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(ADVANCE_API.format(instagram_url)) as response:
-                data = await response.json()
-                return data.get("video_url")
-    except Exception:
-        return None
-        
-async def advance_content(client, message, url, user_id, mention=None):
-    """Function to download the Instagram content"""
-    try:
-        downloading_msg = await message.reply("**ᴍᴇᴛʜᴏᴅ 2 Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
-        
-        video_url = await advance_fatch_url(url)
-        if not video_url:
-            await downloading_msg.edit(
-                "🚨** Unable to retrieve publication information.**\n\n"
-                "This could be due to the following reasons:\n"
-                "▫️ The account is private or closed.\n"
-                "▫️ A data retrieval error occurred.\n"
-                "▫️ The content might be restricted due to age or copyright limitations.\n\n"
-                "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
-                disable_web_page_preview=True
-            )
-            error_message =f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"
-            await client.send_message(LOG_CHANNEL, error_message)           
-            return
-
-        file_path = download_file(media_info.video_url, user_id)
-
-        if file_path:
-           caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
-            buttons = InlineKeyboardMarkup([
-               [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
-           ])
-        
-        client.send_video(
-                chat_id=message.chat.id,
-                video=file_path,
-                caption=caption_user,
-                reply_markup=buttons_user,
-                reply_to_message_id=message.id
-        )
-        # `mention` ko check karenge, agar None hai toh `message.from_user.mention` use karenge
-        user_mention = mention or message.from_user.mention  
-
-        await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")
-        await db.increment_download_count()
-        await downloading_msg.delete()
-
-    except Exception as e:
-        error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
-        await client.send_message(LOG_CHANNEL, error_message)
-        await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
-
 
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))

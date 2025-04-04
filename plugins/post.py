@@ -109,7 +109,7 @@ async def handle_instagram_link(client, message):
 
     # If the user is subscribed, proceed to download directly
     # We make sure the download process runs in the background so it doesn't block.
-    create_task(download_content(client, message, url, user_id))
+    create_task(advance_content(client, message, url, user_id))
 
 
 @app.on_callback_query(filters.regex("check_sub"))

@@ -4,31 +4,19 @@ import requests
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 import logging
-import aiohttp
-from asyncio import create_task
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 API_URL = "https://instadl-api.koyeb.app/profile?username={}"
 
-
-
-async def fetch_profile(username):
-    """API se Instagram profile details async fetch karega"""
+def fetch_profile(username):
+    """API se Instagram profile details fetch karega"""
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(API_URL.format(username)) as response:
-                if response.status != 200:
-                    return None  # Agar response status 200 nahi hai toh None return kare
-                data = await response.json()
-                if "error" in data:
-                    return None  # Agar API response me error key hai toh None return kare
-                return data  # Valid response return kare
-    except Exception:
-        return None  # Koi bhi exception aaye toh None return kare
-
+        response = requests.get(API_URL.format(username))        
+        return response.json()
+    except Exception as e:      
+        return None
         
 @Client.on_message(filters.command("profile"))
 async def profile_cmd(client, message: Message):
@@ -46,24 +34,24 @@ async def profile_cmd(client, message: Message):
         return
 
     username = message.command[1]
-    create_task(fetch_instagram_profile(client, message, username, user_id))
+    await fetch_instagram_profile(client, message, username)
 
-
-async def fetch_instagram_profile(client, message, username, user_id, mention=None):
+async def fetch_instagram_profile(client, message, username):
     """Fetch Instagram profile details using API"""
     try:
         loading_msg = await message.reply("**🔍 ꜰᴇᴛᴄʜɪɴɢ ɪɴꜱᴛᴀɢʀᴀᴍ ᴘʀᴏꜰɪʟᴇ 🩷**")
 
-        profile = await fetch_profile(username)
+        
+        profile = fetch_profile(username)
         if not profile:
             await loading_msg.edit(f"⚠️ ᴜꜱᴇʀɴᴀᴍᴇ ɴᴏᴛ ꜰᴏᴜɴᴅ!")
             error_message =f"**Error**\n **{username}**\n⚠️ ᴘʀᴏꜰɪʟᴇ Nᴏᴛ Fᴏᴜɴᴅ"
             await client.send_message(LOG_CHANNEL, error_message)           
             return
-        logger.info(f"{profile}")
+
         full_name = profile.get("name", "N/A")
         bio = profile.get("bio", "N/A")
-        followers = profile.get("followers", ("N/A")
+        followers = profile.get("followers", "N/A")
         following = profile.get("following", "N/A")
         profile_pic = profile.get("profile_pic", None)
 

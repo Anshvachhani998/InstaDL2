@@ -38,7 +38,7 @@ async def caption_cmd(client, message: Message):
         return
 
     url = message.command[1]
-    asyncio.create_task(fetch_instagram_caption(client, message, url)
+    asyncio.create_task(fetch_instagram_caption(client, message, url))
   
 
 async def fetch_instagram_caption(client, message, url):

@@ -131,23 +131,6 @@ async def handle_instagram_link(client, message):
     user_id = message.from_user.id
     url = message.matches[0].group(0)
 
-    # ✅ **Force Subscription Check**
-    if not await is_subscribed(client, user_id, FORCE_CHANNEL):
-        invite_link = await get_invite_link(client, FORCE_CHANNEL)
-        if not invite_link:
-            return await message.reply("🚨 **Error generating invite link! Contact admin.**")
-
-        buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("✨ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ 🔥", url=invite_link)],
-            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʀʏ ✅", callback_data=f"check_sub#{user_id}#{url}")]
-        ])
-        return await message.reply(
-            "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
-            "🔹 Tᴏ ᴜsᴇ ᴛʜɪs Bᴏᴛ, ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏғғɪᴄɪᴀʟ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ.\n"
-            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ.\n\n",         
-            reply_markup=buttons
-        )
-
     # If the user is subscribed, proceed to download directly
     create_task(advance_content(client, message, url, user_id))
 

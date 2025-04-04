@@ -27,7 +27,7 @@ async def advance_fatch_url(instagram_url):
     except Exception:
         return None
 
-l
+
 
 async def advance_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""

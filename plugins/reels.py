@@ -6,6 +6,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
+from asyncio import create_task
 
 app = Client
 

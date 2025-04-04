@@ -1,12 +1,6 @@
 import random
 import requests
 import re
-import time  
-import os
-import re
-import requests
-import traceback  
-import time
 import aiohttp
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -20,26 +14,6 @@ app = Client
 API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
 ADVANCE_API = "https://instadl-api.koyeb.app/reel?url={}"
 INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel)/[^\s?]+)"
-
-
-
-def download_file(url, user_id):
-    """✅ Download reel with a unique filename"""
-    timestamp = int(time.time())  
-    filename = f"downloads/{user_id}_{timestamp}.mp4"  
-
-    os.makedirs("downloads", exist_ok=True)  
-
-    response = requests.get(url, stream=True)
-    if response.status_code == 200:
-        with open(filename, "wb") as file:
-            for chunk in response.iter_content(1024):
-                file.write(chunk)
-
-        if os.path.exists(filename) and os.path.getsize(filename) > 0:
-            return filename  
-
-    return None  
 
 
 async def advance_fatch_url(instagram_url):
@@ -68,37 +42,29 @@ async def advance_content(client, message, url, user_id, mention=None):
                 "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
                 disable_web_page_preview=True
             )
-            error_message = f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"
+            error_message =f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"
             await client.send_message(LOG_CHANNEL, error_message)           
             return
-
-        file_path = download_file(video_url, user_id)
-
-        if file_path:
-            caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
-            buttons = InlineKeyboardMarkup([
-                [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
-            ])
-            
-            await client.send_video(
-                chat_id=message.chat.id,
-                video=file_path,
-                caption=caption_user,
-                reply_markup=buttons,
-                reply_to_message_id=message.id
-            )
         
-            # `mention` ko check karenge, agar None hai toh `message.from_user.mention` use karenge
-            user_mention = mention or message.from_user.mention  
+        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
+        ])
 
-            await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")
-            await db.increment_download_count()
-            await downloading_msg.delete()
+        await message.reply_video(video_url, caption=caption_user, reply_markup=buttons)
+
+        # `mention` ko check karenge, agar None hai toh `message.from_user.mention` use karenge
+        user_mention = mention or message.from_user.mention  
+
+        await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")
+        await db.increment_download_count()
+        await downloading_msg.delete()
 
     except Exception as e:
         error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
         await client.send_message(LOG_CHANNEL, error_message)
         await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
+
 
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))

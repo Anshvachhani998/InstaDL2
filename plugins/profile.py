@@ -46,7 +46,8 @@ async def profile_cmd(client, message: Message):
         return
 
     username = message.command[1]
-    create_task(advance_content(fetch_instagram_profile(client, message, username, user_id))
+    create_task(fetch_instagram_profile(client, message, username, user_id))
+
 
 async def fetch_instagram_profile(client, message, username, user_id, mention=None):
     """Fetch Instagram profile details using API"""

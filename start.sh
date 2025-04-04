@@ -17,6 +17,6 @@ sudo git pull origin main
 
 # Restart Docker Container
 echo "🚀 Restarting YouTubeDL Docker container..."
-sudo docker restart YouTubeDL
+sudo docker restart InstaDL
 
 echo "✅ Update & Restart Completed!"

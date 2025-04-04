@@ -50,7 +50,7 @@ async def fetch_instagram_profile(client, message, username, user_id, mention=No
         logger.info(f"{profile}")
         full_name = profile.get("name", "N/A")
         bio = profile.get("bio", "N/A")
-        followers = profile.get("followers", "N/A")
+        followers = profile
         following = profile.get("following", "N/A")
         profile_pic = profile.get("profile_pic", None)
 

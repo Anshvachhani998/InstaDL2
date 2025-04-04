@@ -34,14 +34,13 @@ async def profile_cmd(client, message: Message):
         return
 
     username = message.command[1]
-    await fetch_instagram_profile(client, message, username)
+    await fetch_instagram_profile(client, message, username, user_id)
 
-async def fetch_instagram_profile(client, message, username):
+async def fetch_instagram_profile(client, message, username, user_id, mention=None):
     """Fetch Instagram profile details using API"""
     try:
         loading_msg = await message.reply("**🔍 ꜰᴇᴛᴄʜɪɴɢ ɪɴꜱᴛᴀɢʀᴀᴍ ᴘʀᴏꜰɪʟᴇ 🩷**")
 
-        
         profile = fetch_profile(username)
         if not profile:
             await loading_msg.edit(f"⚠️ ᴜꜱᴇʀɴᴀᴍᴇ ɴᴏᴛ ꜰᴏᴜɴᴅ!")

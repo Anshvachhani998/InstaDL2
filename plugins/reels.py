@@ -84,7 +84,7 @@ async def advance_content(client, message, url, user_id, mention=None):
     except Exception as e:
         try:
             # Re-try downloading and uploading the video again
-            file_path = await download_file(video_url, user_id)
+            file_path = download_file(video_url, user_id)
 
             if file_path:
                 # Re-attempt sending the video

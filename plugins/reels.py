@@ -63,7 +63,7 @@ async def advance_content(client, message, url, user_id, mention=None):
                 "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
                 disable_web_page_preview=True
             )
-            error_message =f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"
+            error_message = f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"
             await client.send_message(LOG_CHANNEL, error_message)           
             return
         
@@ -120,10 +120,10 @@ async def advance_content(client, message, url, user_id, mention=None):
 
         except Exception as retry_error:
             # If retry fails, log the retry error and notify the user
-            retry_error_message = f"🚨 **Retry Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Retry Error:** `{str(retry_error)}`"
+            retry_error_message = f"🚨 **Retry Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Retry Error:** `{retry_error}`"
             await client.send_message(LOG_CHANNEL, retry_error_message)
             await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
-
+            
 
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))

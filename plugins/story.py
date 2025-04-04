@@ -1,34 +1,57 @@
 import random
-import requests
+import os
 import re
+import requests
+import traceback  
+import time
+import aiohttp
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
+from asyncio import create_task
 
 app = Client
 
 ADVANCE_API = "https://instadl-api.koyeb.app/story?url={}"
 INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(stories)/[^\s?]+)"
 
+def download_file(url, user_id):
+    """✅ Download reel with a unique filename"""
+    timestamp = int(time.time())  
+    filename = f"downloads/{user_id}_{timestamp}.mp4"  
 
+    os.makedirs("downloads", exist_ok=True)  
 
-def advance_fatch_url(instagram_url):
-    """API endpoint se direct video URL fetch karega"""
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with open(filename, "wb") as file:
+            for chunk in response.iter_content(1024):
+                file.write(chunk)
+
+        if os.path.exists(filename) and os.path.getsize(filename) > 0:
+            return filename  
+
+    return None  
+    
+async def advance_fatch_url(instagram_url):
+    """API endpoint se direct media URL fetch karega"""
     try:
-        response = requests.get(ADVANCE_API.format(instagram_url))
-        data = response.json()
-        return data.get("story_url")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(ADVANCE_API.format(instagram_url)) as response:
+                data = await response.json()
+                return data.get("story_url")
     except Exception:
         return None
+
         
 async def download_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Sᴛᴏʀʏ ɪɴ 5 ꜱᴇᴄᴏɴᴅꜱ🩷**")
         
-        video_url = advance_fatch_url(url)
+        video_url = await advance_fatch_url(url)
         if not video_url:
             await downloading_msg.edit(
                 "** Unable to retrieve publication information.**\n\n"
@@ -58,9 +81,48 @@ async def download_content(client, message, url, user_id, mention=None):
         await downloading_msg.delete()
 
     except Exception as e:
-        error_message = f"🚨 **Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Error:** `{str(e)}`"
-        await client.send_message(LOG_CHANNEL, error_message)
-        await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
+        try:
+            # Re-try downloading and uploading the video again
+            file_path = download_file(video_url, user_id)
+
+            if file_path:
+                # Re-attempt sending the video
+                caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʏʙ @Ans_Bots**"
+                buttons_user = InlineKeyboardMarkup([
+                    [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
+                ])
+
+                # Sending the video to the user again
+                await client.send_video(
+                    chat_id=message.chat.id,
+                    video=file_path,
+                    caption=caption_user,
+                    reply_markup=buttons_user,
+                    reply_to_message_id=message.id
+                )
+
+                # Preparing the log message and sending to dump channel again
+                user_mention = mention or message.from_user.mention
+                caption_log = f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ:** **{user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Cʟɪᴄᴋ Hᴇʀᴇ]({url})**"
+                await client.send_video(DUMP_CHANNEL, video=file_path, caption=caption_log)
+
+                # Increment download count in DB
+                await db.increment_download_count()
+
+                # Deleting the downloading message after retry
+                await downloading_msg.delete()
+            else:
+                # If retry fails, update the downloading message
+                await downloading_msg.edit("🚨 **Failed to download video on retry.** Please contact support.")
+                error_message = f"**Error**\n **{url}**\n⚠️ Video download failed on retry"
+                await client.send_message(LOG_CHANNEL, error_message)
+
+        except Exception as retry_error:
+            # If retry fails, log the retry error and notify the user
+            retry_error_message = f"🚨 **Retry Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Retry Error:** `{retry_error}`"
+            await client.send_message(LOG_CHANNEL, retry_error_message)
+            await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
+            
 
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))
@@ -68,25 +130,11 @@ async def handle_instagram_link(client, message):
     user_id = message.from_user.id
     url = message.matches[0].group(0)
 
-    # ✅ **Force Subscription Check**
-    if not await is_subscribed(client, user_id, FORCE_CHANNEL):
-        invite_link = await get_invite_link(client, FORCE_CHANNEL)
-        if not invite_link:
-            return await message.reply("🚨 **Error generating invite link! Contact admin.**")
 
-        buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("✨ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ 🔥", url=invite_link)],
-            [InlineKeyboardButton("🔓 I'ᴠᴇ Jᴏɪɴᴇᴅ, Rᴇᴛʀʏ ✅", callback_data=f"check_sub#{user_id}#{url}")]
-        ])
-        return await message.reply(
-            "**🔒 Aᴄᴄᴇss Dᴇɴɪᴇᴅ!**\n\n"
-            "🔹 Tᴏ ᴜsᴇ ᴛʜɪs Bᴏᴛ, ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏғғɪᴄɪᴀʟ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ.\n"
-            "🔹 Aғᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴘʀᴇss **'🔄 I'ᴠᴇ Jᴏɪɴᴇᴅ'** ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ.\n\n",         
-            reply_markup=buttons
-        )
 
     # If the user is subscribed, proceed to download directly
-    await download_content(client, message, url, user_id)
+        # If the user is subscribed, proceed to download directly
+    create_task(download_content(client, message, url, user_id))
 
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):

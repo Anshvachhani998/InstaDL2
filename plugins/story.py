@@ -54,7 +54,7 @@ async def download_content(client, message, url, user_id, mention=None):
         video_url = await advance_fatch_url(url)
         if not video_url:
             await downloading_msg.edit(
-                "** Unable to retrieve publication information.**\n\n"
+                "** 🚫 Unable to retrieve publication information.**\n\n"
                 "This could be due to the following reasons:\n"
                 "▫️ The account is private or closed.\n"
                 "▫️ A data retrieval error occurred.\n"

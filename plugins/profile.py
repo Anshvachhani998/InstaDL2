@@ -57,7 +57,8 @@ async def fetch_instagram_profile(client, message, username, user_id, mention=No
         profile = await fetch_profile(username)
         if not profile:
             await loading_msg.edit(f"⚠️ ᴜꜱᴇʀɴᴀᴍᴇ ɴᴏᴛ ꜰᴏᴜɴᴅ!")
-            error_message =f"**Error**\n **{username}**\n⚠️ ᴘʀᴏꜰɪʟᴇ Nᴏᴛ Fᴏᴜɴᴅ"
+            user_mention = message.from_user.mention
+            error_message =f"**Error**\n **{username}**\n⚠️ ᴘʀᴏꜰɪʟᴇ Nᴏᴛ Fᴏᴜɴᴅ\n**✅ ᴘʀᴏꜰɪʟᴇ ꜱᴇᴀʀᴄʜᴇᴅ ʙʏ:** {user_mention}**"            
             await client.send_message(LOG_CHANNEL, error_message)           
             return
         logger.info(f"{profile}")

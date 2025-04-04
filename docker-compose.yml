@@ -1,0 +1,10 @@
+version: '3'
+services:
+  instadl:
+    build: .
+    container_name: InstaDL
+    restart: always
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python3 bot.py

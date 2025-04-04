@@ -67,7 +67,7 @@ async def advance_content(client, message, url, user_id, mention=None):
             await client.send_message(LOG_CHANNEL, error_message)           
             return
         
-        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
+        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Iɢᴛᴠ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
         ])

@@ -47,7 +47,7 @@ async def fetch_instagram_profile(client, message, username, user_id, mention=No
             error_message =f"**Error**\n **{username}**\n⚠️ ᴘʀᴏꜰɪʟᴇ Nᴏᴛ Fᴏᴜɴᴅ"
             await client.send_message(LOG_CHANNEL, error_message)           
             return
-
+        logger.info(f"{profile}")
         full_name = profile.get("name", "N/A")
         bio = profile.get("bio", "N/A")
         followers = profile.get("followers", "N/A")

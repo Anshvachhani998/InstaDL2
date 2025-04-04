@@ -1,6 +1,9 @@
 import random
-import requests
+import os
 import re
+import requests
+import traceback  
+import time
 import aiohttp
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -16,6 +19,24 @@ ADVANCE_API = "https://instadl-api.koyeb.app/reel?url={}"
 INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel)/[^\s?]+)"
 
 
+def download_file(url, user_id):
+    """✅ Download reel with a unique filename"""
+    timestamp = int(time.time())  
+    filename = f"downloads/{user_id}_{timestamp}.mp4"  
+
+    os.makedirs("downloads", exist_ok=True)  
+
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with open(filename, "wb") as file:
+            for chunk in response.iter_content(1024):
+                file.write(chunk)
+
+        if os.path.exists(filename) and os.path.getsize(filename) > 0:
+            return filename  
+
+    return None  
+    
 async def advance_fatch_url(instagram_url):
     """API endpoint se direct media URL fetch karega"""
     try:

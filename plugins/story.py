@@ -59,7 +59,8 @@ async def download_content(client, message, url, user_id, mention=None):
                 "▫️ The account is private or closed.\n"
                 "▫️ A data retrieval error occurred.\n"
                 "▫️ The content might be restricted due to age or copyright limitations.\n\n"
-                "**Please inform the admin if the issue persists. You can contact the admin directly here: [ADMIN](https://t.me/AnS_team).**",
+                "⚠ **If the issue persists, please inform the admin or ask for help in our support group.**\n\n"
+                "**💬 Support Group: [SUPPORT](https://t.me/AnSBotsSupports)**",
                 disable_web_page_preview=True
             )
             error_message =f"**Error**\n **{url}**\n⚠️ Sᴛᴏʀʏ Nᴏᴛ Fᴏᴜɴᴅ"

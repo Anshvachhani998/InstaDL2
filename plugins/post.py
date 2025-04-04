@@ -1,12 +1,12 @@
 import random
-import requests
-import re
+import aiohttp  # Use aiohttp for async HTTP requests
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto, InputMediaVideo
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
 import logging 
+from asyncio import create_task
 
 logger = logging.getLogger(__name__)
 
@@ -16,34 +16,35 @@ API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
 ADVANCE_API = "https://instadl-api.koyeb.app/post?url={}"
 INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(p)/[^\s?]+)"
 
-
-def fetch_video_url(instagram_url):
+async def fetch_video_url(instagram_url):
     """API endpoint se direct video URL fetch karega (Only MP4)"""
     try:
-        response = requests.get(API_ENDPOINT.format(instagram_url))
-        data = response.json()       
-        return data.get("dwn_url")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(API_ENDPOINT.format(instagram_url)) as response:
+                data = await response.json()       
+                return data.get("dwn_url")
     except Exception:
         return None
 
 
-def advance_fatch_url(instagram_url):
+async def advance_fatch_url(instagram_url):
     """API endpoint se direct media URL fetch karega"""
     try:
-        response = requests.get(ADVANCE_API.format(instagram_url))
-        data = response.json()        
-        media_urls = data.get("media", [])        
-        return media_urls if media_urls else None  # Jo bhi list mile, wo return hoga
+        async with aiohttp.ClientSession() as session:
+            async with session.get(ADVANCE_API.format(instagram_url)) as response:
+                data = await response.json()        
+                media_urls = data.get("media", [])        
+                return media_urls if media_urls else None  # Jo bhi list mile, wo return hoga
     except Exception:
         return None
 
-        
+
 async def download_content(client, message, url, user_id, mention=None):
     """Function to download the Instagram content"""
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷**")
         
-        video_url = fetch_video_url(url)
+        video_url = await fetch_video_url(url)
         if not video_url:
             insta = await downloading_msg.edit(
                 "**⛔️ Unable to retrieve publication information.**\n\n"
@@ -78,7 +79,7 @@ async def advance_content(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Mᴇᴛʜᴏᴅ 2 Fᴏʀ Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷**")
         
-        media_urls = advance_fatch_url(url)  # API se media URLs fetch karna
+        media_urls = await advance_fatch_url(url)  # API se media URLs fetch karna
         
         if not media_urls:
             await downloading_msg.edit(
@@ -119,8 +120,6 @@ async def advance_content(client, message, url, user_id, mention=None):
                     album.append(media)
                 
                 await message.reply_media_group(album)
-
-
             
         await db.increment_download_count()
         await downloading_msg.delete()
@@ -130,11 +129,6 @@ async def advance_content(client, message, url, user_id, mention=None):
         await client.send_message(LOG_CHANNEL, error_message)
         await message.reply("⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.")
 
-
-    
-
-
-from asyncio import create_task
 
 @app.on_message(filters.regex(INSTAGRAM_REGEX))
 async def handle_instagram_link(client, message):
@@ -177,3 +171,4 @@ async def check_subscription(client, callback_query):
         await an.delete()
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)
+        

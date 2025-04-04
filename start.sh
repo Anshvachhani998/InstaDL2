@@ -13,10 +13,11 @@ fi
 
 # Pull the latest updates
 echo "🔄 Updating repository..."
-sudo git pull origin main
+sudo git pull origin InstaDl3.0
+
 
 # Restart Docker Container
-echo "🚀 Restarting YouTubeDL Docker container..."
+echo "🚀 Restarting instadl Docker container..."
 sudo docker restart InstaDL
 
 echo "✅ Update & Restart Completed!"

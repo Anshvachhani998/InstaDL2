@@ -16,7 +16,7 @@ app = Client
 
 API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
 ADVANCE_API = "https://instadl-api.koyeb.app/reel?url={}"
-INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(reel)/[^\s?]+)"
+INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(share/)?reel/[^\s?]+)"
 
 
 def download_file(url, user_id):

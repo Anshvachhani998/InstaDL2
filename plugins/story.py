@@ -15,7 +15,7 @@ from asyncio import create_task
 app = Client
 
 ADVANCE_API = "https://instadl-api.koyeb.app/story?url={}"
-INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(stories)/[^\s?]+)"
+INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(share/)?stories/[^\s?]+)"
 
 def download_file(url, user_id):
     """✅ Download reel with a unique filename"""

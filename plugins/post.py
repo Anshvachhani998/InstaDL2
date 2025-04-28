@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 app = Client
 
 ADVANCE_API = "https://instadl-api.koyeb.app/post?url={}"
-INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(p)/[^\s?]+)"
+INSTAGRAM_REGEX = r"(https?://www\.instagram\.com/(share/)?p/[^\s?]+)"
 
 
 async def advance_fatch_url(instagram_url):

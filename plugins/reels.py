@@ -138,11 +138,13 @@ async def handle_instagram_link(client, message):
     create_task(advance_content(client, message, url, user_id))
 
 @app.on_message(filters.command("reel")
-async def test(client, message):
+async def tes2t(client, message):
    user_id = message.from_user.id
    url = message.command[1]
    create_task(test(client, message, url, user_id))
-    
+
+
+
 async def test(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")

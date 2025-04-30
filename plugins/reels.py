@@ -137,11 +137,16 @@ async def handle_instagram_link(client, message):
     # If the user is subscribed, proceed to download directly
     create_task(advance_content(client, message, url, user_id))
 
-@app.on_message(filters.command("reel")
-async def tes2t(client, message):
-   user_id = message.from_user.id
-   url = message.command[1]
-   create_task(test(client, message, url, user_id))
+from pyrogram import Client, filters
+from asyncio import create_task
+
+@app.on_message(filters.command("reel"))
+async def testj(client, message):
+    user_id = message.from_user.id
+    url = message.command[1]
+
+    # Ensure you are calling the async function correctly
+    create_task(test(client, message, url, user_id))
 
 
 

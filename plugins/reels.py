@@ -135,7 +135,7 @@ async def handle_instagram_link(client, message):
     url = message.matches[0].group(0)
 
     # If the user is subscribed, proceed to download directly
-    create_task(test(client, message, url, user_id))
+    create_task(advance_content(client, message, url, user_id))
 
 async def test(client, message, url, user_id, mention=None):
     try:

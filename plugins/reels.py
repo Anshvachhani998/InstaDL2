@@ -1,5 +1,7 @@
 import random
 import os
+import asyncio
+import subprocess
 import re
 import requests
 import traceback  
@@ -134,6 +136,64 @@ async def handle_instagram_link(client, message):
 
     # If the user is subscribed, proceed to download directly
     create_task(advance_content(client, message, url, user_id))
+
+@app.on_message(filters.command("reel")
+async def test(client, message):
+   user_id = message.from_user.id
+   url = message.command[1]
+   create_task(test(client, message, url, user_id))
+    
+async def test(client, message, url, user_id, mention=None):
+    try:
+        downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
+        
+        file_name = f"reel_{user_id}.mp4"
+        cmd = [
+            "yt-dlp",
+            "--quiet",
+            "--no-warnings",
+            "--geo-bypass",
+            "-o", file_name,
+            url
+        ]
+
+        process = await asyncio.create_subprocess_exec(*cmd)
+        await process.communicate()
+
+        if not os.path.exists(file_name):
+            await downloading_msg.edit(
+                "**🚫 Unable to download this reel.**\n\n"
+                "Possible reasons:\n"
+                "▫️ Reel is private or removed.\n"
+                "▫️ Geo-blocked in your country.\n"
+                "▫️ yt-dlp unable to extract video.\n\n"
+                "⚠️ Try again later or ask in support group.\n\n"
+                "**💬 Support Group: [SUPPORT](https://t.me/AnSBotsSupports)**",
+                disable_web_page_preview=True
+            )
+            return
+
+        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
+        ])
+
+        await message.reply_video(video=file_name, caption=caption_user, reply_markup=buttons)
+
+        user_mention = mention or message.from_user.mention
+        await client.send_video(
+            DUMP_CHANNEL,
+            video=file_name,
+            caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**"
+        )
+
+        await db.increment_download_count()
+        await downloading_msg.delete()
+        os.remove(file_name)
+
+    except Exception as e:
+        await message.reply(f"❌ **Error:** {str(e)}")
+
 
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):

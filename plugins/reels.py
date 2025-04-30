@@ -148,9 +148,7 @@ async def testj(client, message):
     # Ensure you are calling the async function correctly
     create_task(test(client, message, url, user_id))
 
-
-
-async def test(client, message, url, user_id, mention=None)
+async def test(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
         
@@ -200,7 +198,6 @@ async def test(client, message, url, user_id, mention=None)
 
     except Exception as e:
         await message.reply(f"❌ **Error:** {str(e)}")
-
 
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):

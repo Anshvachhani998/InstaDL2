@@ -135,18 +135,14 @@ async def handle_instagram_link(client, message):
     url = message.matches[0].group(0)
 
     # If the user is subscribed, proceed to download directly
-    create_task(advance_content(client, message, url, user_id))
+    create_task(test(client, message, url, user_id))
 
 from pyrogram import Client, filters
 from asyncio import create_task
 
-@app.on_message(filters.command("reel"))
-async def testj(client, message):
-    user_id = message.from_user.id
-    url = message.command[1]
-
-    # Ensure you are calling the async function correctly
-    create_task(test(client, message, url, user_id))
+import os
+import asyncio
+from pyrogram import InlineKeyboardMarkup, InlineKeyboardButton
 
 async def test(client, message, url, user_id, mention=None):
     try:
@@ -165,6 +161,7 @@ async def test(client, message, url, user_id, mention=None):
         process = await asyncio.create_subprocess_exec(*cmd)
         await process.communicate()
 
+        # Check if file exists after download
         if not os.path.exists(file_name):
             await downloading_msg.edit(
                 "**🚫 Unable to download this reel.**\n\n"
@@ -176,15 +173,20 @@ async def test(client, message, url, user_id, mention=None):
                 "**💬 Support Group: [SUPPORT](https://t.me/AnSBotsSupports)**",
                 disable_web_page_preview=True
             )
+            error_message = f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"
+            await client.send_message(LOG_CHANNEL, error_message)
             return
 
+        # Prepare caption and buttons
         caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
         ])
 
+        # Send video to user
         await message.reply_video(video=file_name, caption=caption_user, reply_markup=buttons)
 
+        # Send to dump channel
         user_mention = mention or message.from_user.mention
         await client.send_video(
             DUMP_CHANNEL,
@@ -197,7 +199,11 @@ async def test(client, message, url, user_id, mention=None):
         os.remove(file_name)
 
     except Exception as e:
-        await message.reply(f"❌ **Error:** {str(e)}")
+        # Send error message with exception details
+        retry_error_message = f"🚨 **Retry Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Retry Error:** `{str(e)}`"
+        await client.send_message(LOG_CHANNEL, retry_error_message)
+        await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
+
 
 @app.on_callback_query(filters.regex("check_sub"))
 async def check_subscription(client, callback_query):
@@ -208,8 +214,7 @@ async def check_subscription(client, callback_query):
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
         an = await callback_query.message.edit_text("**🙏 Tʜᴀɴᴋs Fᴏʀ Jᴏɪɴɪɴɢ! Nᴏᴡ Pʀᴏᴄᴇssɪɴɢ Yᴏᴜʀ Lɪɴᴋ...**")
 
-        # Pass `mention` as a new parameter
-        await advance_content(client, callback_query.message, url, user_id, mention)
+        await test(client, callback_query.message, url, user_id, mention)
         await an.delete()
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

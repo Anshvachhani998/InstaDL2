@@ -145,7 +145,7 @@ async def tes2t(client, message):
 
 
 
-async def test(client, message, url, user_id, mention=None):
+async def test(client, message, url, user_id, mention=None)
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
         

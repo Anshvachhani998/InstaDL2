@@ -152,3 +152,38 @@ async def stats(client, message):
         "These stats show the total number of users and downloads recorded in the system."
     )
 
+
+
+import os
+import subprocess
+from pyrogram import Client, filters
+
+app = Client
+
+@app.on_message(filters.command("reels") & filters.private)
+async def download_reel(client, message):
+    if len(message.command) < 2:
+        return await message.reply("Please send the reel URL.\nExample: `/reels https://www.instagram.com/reel/xyz/`", quote=True)
+
+    url = message.command[1]
+
+    await message.reply("Downloading reel...", quote=True)
+
+    try:
+        output = subprocess.check_output([
+            "yt-dlp",
+            url,
+            "-o", "reel.%(ext)s",
+            "--geo-bypass"
+        ])
+
+        video_file = next((f for f in os.listdir() if f.startswith("reel.") and f.endswith((".mp4", ".webm"))), None)
+
+        if video_file:
+            await client.send_video(message.chat.id, video=video_file, caption="Here is your reel!")
+            os.remove(video_file)
+        else:
+            await message.reply("Failed to find the downloaded file.")
+
+    except subprocess.CalledProcessError as e:
+        await message.reply(f"Download error:\n{e.output.decode()}")

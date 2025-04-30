@@ -137,13 +137,6 @@ async def handle_instagram_link(client, message):
     # If the user is subscribed, proceed to download directly
     create_task(test(client, message, url, user_id))
 
-from pyrogram import Client, filters
-from asyncio import create_task
-
-import os
-import asyncio
-from pyrogram import InlineKeyboardMarkup, InlineKeyboardButton
-
 async def test(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")

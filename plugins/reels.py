@@ -147,7 +147,7 @@ async def test(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
         
-        file_name = f"reel_{user_id}.mp4"
+        file_name = f"downloads/reel_{user_id}.mp4"
         cmd = [
             "yt-dlp",
             "--quiet",

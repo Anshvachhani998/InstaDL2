@@ -11,7 +11,7 @@ from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
 from asyncio import create_task
-
+from plugins.login import fetch_stories
 app = Client
 
 ADVANCE_API = "https://instadl-api.koyeb.app/story?url={}"
@@ -51,7 +51,7 @@ async def download_content(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Sᴛᴏʀʏ ɪɴ 5 ꜱᴇᴄᴏɴᴅꜱ🩷**")
         
-        video_url = await advance_fatch_url(url)
+        video_url = await fetch_stories(url)
         if not video_url:
             await downloading_msg.edit(
                 "** 🚫 Unable to retrieve publication information.**\n\n"
@@ -130,11 +130,6 @@ async def download_content(client, message, url, user_id, mention=None):
 async def handle_instagram_link(client, message):
     user_id = message.from_user.id
     url = message.matches[0].group(0)
-
-
-
-    # If the user is subscribed, proceed to download directly
-        # If the user is subscribed, proceed to download directly
     create_task(download_content(client, message, url, user_id))
 
 @app.on_callback_query(filters.regex("check_sub"))

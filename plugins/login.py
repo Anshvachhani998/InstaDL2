@@ -6,6 +6,7 @@ from database.db import db
 
 insta = InstaClient()
 
+insta_client = InstaClient()
 
 @Client.on_message(filters.command("login"))
 async def insta_login_handler(client, message):

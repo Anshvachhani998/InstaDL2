@@ -58,6 +58,14 @@ async def fetch_stories(story_url: str):
     except Exception as e:
         return f"❌ Failed to fetch story info: {str(e)}"
 
+async def fetch_caption(insta_url: str):
+    try:
+        media_id = insta_client.media_pk_from_url(insta_url)
+        media_info = insta_client.media_info(media_id)
+        return media_info.caption_text or "No caption available."
+
+    except Exception as e:
+        return f"❌ Failed to fetch caption: {str(e)}"
 async def fetch_post(post_url: str):
     try:
         # Run the blocking calls in a separate thread

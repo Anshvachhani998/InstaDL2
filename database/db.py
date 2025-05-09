@@ -7,7 +7,7 @@ class Database:
         self.db = self.client[MONGO_NAME]
         self.col = self.db["users"]
         self.downloads_collection = self.db["downloads"]
-        self.login = self.db["login"]
+        self.login = self.db["sessions"]
 
     def new_user(self, id, name):
         return {"id": int(id), "name": name}
@@ -48,13 +48,13 @@ class Database:
     async def block_user(self, user_id):
         await self.col.delete_many({'id': int(user_id)})
 
+
     async def save_session(session_data):
         await self.login.update_one(
             {"_id": "insta_session"},
             {"$set": {"session_data": session_data}},
             upsert=True
         )
-
 
     async def load_session():
         saved_session = await self.login.find_one({"_id": "insta_session"})
@@ -63,5 +63,4 @@ class Database:
         return None
 
 
-# Initialize database object
 db = Database()

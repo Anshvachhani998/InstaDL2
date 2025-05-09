@@ -41,30 +41,28 @@ async def fetch_reel(reel_url: str):
     except Exception as e:
         return f"❌ Failed to fetch reel info: {str(e)}"
 
+import asyncio
+
 async def fetch_post(post_url: str):
     try:
-        # Extract media ID from the post URL
-        media_id = insta.media_pk_from_url(post_url)
-        
-        # Fetch media information (which includes images, videos, etc.)
-        post_info = insta.media_info(media_id)
-        
-        # Check if it's a carousel (multiple images/videos)
+        # Run the blocking calls in a separate thread
+        media_id = await asyncio.to_thread(insta.media_pk_from_url, post_url)
+        post_info = await asyncio.to_thread(insta.media_info, media_id)
+
+        # If it's a carousel (multiple media)
         if post_info.resources:
             media_urls = []
             for resource in post_info.resources:
                 media_url = resource.video_url if resource.video_url else resource.thumbnail_url
-                media_urls.append(str(media_url))  # Convert URL to string
-
+                media_urls.append(str(media_url))
             return media_urls
-
         else:
-            # If it's a single image/video post, return its URL
             media_url = post_info.video_url if post_info.video_url else post_info.thumbnail_url
-            return [str(media_url)]  # Return as a list with a single URL
+            return [str(media_url)]
 
     except Exception as e:
         return f"❌ Failed to fetch post info: {str(e)}"
+
 
 async def auto_login():
     session_data = await db.load_session()

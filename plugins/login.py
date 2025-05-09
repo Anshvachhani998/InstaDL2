@@ -60,12 +60,30 @@ async def fetch_stories(story_url: str):
 
 async def fetch_caption(insta_url: str):
     try:
-        media_id = insta.media_pk_from_url(insta_url)
-        media_info = insta.media_info(media_id)
+        media_id = await asyncio.to_thread(insta.media_pk_from_url, insta_url)
+        media_info = await asyncio.to_thread(insta.media_info, media_id)
         return media_info.caption_text or "No caption available."
 
     except Exception as e:
         return f"❌ Failed to fetch caption: {str(e)}"
+
+async def fetch_user_profile(username: str):
+    try:
+        user_info = await asyncio.to_thread(insta_client.user_info_by_username_v1, username)
+
+        return {
+            "full_name": user_info.full_name or "No name available.",
+            "profile_pic": str(user_info.profile_pic_url_hd),
+            "bio": user_info.biography or "No bio available.",
+            "followers": user_info.follower_count,
+            "following": user_info.following_count,
+            "is_private": user_info.is_private,
+            "is_verified": user_info.is_verified,
+        }
+
+    except Exception as e:
+        return {"error": f"❌ Failed to fetch user info: {str(e)}"}
+
 async def fetch_post(post_url: str):
     try:
         # Run the blocking calls in a separate thread

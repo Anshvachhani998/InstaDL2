@@ -160,10 +160,10 @@ async def git_pull(client, message):
     if message.from_user.id not in ADMINS:
         return await message.reply_text("🚫 **You are not authorized to use this command!**")
       
-    working_directory = "/home/ubuntu/URL-UPLOADER"
+    working_directory = "/home/ubuntu/InstaDL2"
 
     process = subprocess.Popen(
-        "git pull https://github.com/Anshvachhani998/URL-UPLOADER",
+        "git pull https://github.com/Anshvachhani998/InstaDL2",
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
@@ -193,7 +193,7 @@ async def git_pull(client, message):
         await message.reply_text(f"📦 Git Pull Output:\n```\n{output}\n```")
         await message.reply_text("🔄 Git Pull successful!\n♻ Restarting bot...")
 
-        subprocess.Popen("bash /home/ubuntu/URL-UPLOADER/start.sh", shell=True)
+        subprocess.Popen("bash /home/ubuntu/InstaDL2/start.sh", shell=True)
         os._exit(0)
 
     await message.reply_text(f"📦 Git Pull Output:\n```\n{output}\n```")

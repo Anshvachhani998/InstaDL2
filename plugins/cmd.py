@@ -157,8 +157,6 @@ async def stats(client, message):
 
 @Client.on_message(filters.command("restart"))
 async def git_pull(client, message):
-    if message.from_user.id not in ADMINS:
-        return await message.reply_text("🚫 **You are not authorized to use this command!**")
       
     working_directory = "/home/ubuntu/InstaDL2"
 

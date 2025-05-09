@@ -62,11 +62,13 @@ async def fetch_instagram_profile(client, message, username, user_id, mention=No
             await client.send_message(LOG_CHANNEL, error_message)           
             return
         logger.info(f"{profile}")
+        
         full_name = profile.get("name", "N/A")
         bio = profile.get("bio", "N/A")
         followers = profile.get("followers", "N/A")
         following = profile.get("following", "N/A")
         profile_pic = profile.get("profile_pic", None)
+        is_private = profile.get("is_private", False)
 
         caption = (
             f"👤 **Instagram Profile:** [{username}](https://instagram.com/{username})\n\n"

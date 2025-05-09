@@ -6,7 +6,6 @@ from database.db import db
 
 insta = InstaClient()
 
-insta_client = InstaClient()
 
 @Client.on_message(filters.command("login"))
 async def insta_login_handler(client, message):
@@ -50,7 +49,7 @@ async def fetch_stories(story_url: str):
             return "❌ Invalid story URL format"
             
         story_id = match.group(1)
-        story_info = await asyncio.to_thread(insta_client.media_info, story_id)
+        story_info = await asyncio.to_thread(insta.media_info, story_id)
 
         media_url = story_info.video_url if story_info.video_url else story_info.thumbnail_url
         

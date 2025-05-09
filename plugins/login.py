@@ -1,6 +1,6 @@
+import asyncio
 from pyrogram import Client, filters
 from instagrapi import Client as InstaClient
-
 from database.db import db
 
 insta = InstaClient()
@@ -33,15 +33,16 @@ async def insta_login_handler(client, message):
 
 async def fetch_reel(reel_url: str):
     try:
-        media_id = insta.media_pk_from_url(reel_url)
-        reel_info = insta.media_info(media_id)
-        video_url = str(reel_info.video_url)
+        # Run blocking functions in background thread
+        media_id = await asyncio.to_thread(insta.media_pk_from_url, reel_url)
+        reel_info = await asyncio.to_thread(insta.media_info, media_id)
         
+        video_url = str(reel_info.video_url)
         return video_url
+
     except Exception as e:
         return f"❌ Failed to fetch reel info: {str(e)}"
 
-import asyncio
 
 async def fetch_post(post_url: str):
     try:

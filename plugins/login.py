@@ -53,3 +53,27 @@ async def get_reel_info(client, message):
         await message.reply_text(f"🎬 **Reel Video URL:**\n{video_url}")
     except Exception as e:
         await message.reply_text(f"❌ Failed to fetch reel info:\n{e}")
+
+
+
+async def auto_login():
+    session_data = await db.load_session()
+
+    if session_data:
+        insta.set_settings(session_data)
+        try:
+            insta.get_timeline_feed()
+            print("✅ Session loaded from DB and is valid.")
+            return insta
+        except Exception as e:
+            print("⚠️ Session expired. Logging in again...")
+
+    try:
+        insta.login("loveis8507", "Ansh12345@23")  # 🔐 Use env in production
+        session_data = insta.get_settings()
+        await db.save_session(session_data)
+        print("🔐 Logged in and session saved to DB.")
+        return insta
+    except Exception as e:
+        print(f"❌ Login failed: {str(e)}")
+        return None

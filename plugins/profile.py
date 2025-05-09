@@ -73,7 +73,8 @@ async def fetch_instagram_profile(client, message, username, user_id, mention=No
             f"📌 **Name:** {full_name}\n"
             f"📖 **Bio:** {bio}\n"
             f"👥 **Followers:** {followers}\n"
-            f"✅ **Following:** {following}\n\n"
+            f"✅ **Following:** {following}\n"
+            f"🔒 **Private:** {'Yes' if is_private else 'No'}\n\n"
             "**🔹 Powered by @Ans_Bots**"
         )
 

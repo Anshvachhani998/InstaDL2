@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Folder Name
-DIR="InstaDL"
+DIR="InstaDL2"
 
 # Check if the folder exists
 if [ -d "$DIR" ]; then
@@ -13,11 +13,11 @@ fi
 
 # Pull the latest updates
 echo "🔄 Updating repository..."
-sudo git pull origin InstaDl3.0
+sudo git pull origin InstaDl4.0
 
 
 # Restart Docker Container
 echo "🚀 Restarting instadl Docker container..."
-sudo docker restart InstaDL
+sudo docker restart InstaDL2
 
 echo "✅ Update & Restart Completed!"

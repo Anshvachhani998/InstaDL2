@@ -12,6 +12,7 @@ from plugins import web_server
 from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL, PORT
 from pyrogram import types
 from pyrogram import utils as pyroutils
+from plugins.login import auto_login
 
 pyroutils.MIN_CHAT_ID = -999999999999
 pyroutils.MIN_CHANNEL_ID = -100999999999999
@@ -31,9 +32,15 @@ class Bot(Client):
             plugins={"root": "plugins"},
             sleep_threshold=10,
         )
+        self.insta = None
 
     async def start(self):
         await super().start()
+        self.insta = await auto_login()
+        if self.insta:
+            logging.info("✅ Instagram session ready.")
+        else:
+            logging.error("❌ Instagram login failed.")
         me = await self.get_me()
         logging.info(f"🤖 {me.first_name} (@{me.username}) running on Pyrogram v{__version__} (Layer {layer})")
         tz = pytz.timezone('Asia/Kolkata')

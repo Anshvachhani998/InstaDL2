@@ -1,11 +1,12 @@
 import asyncio
+import re 
 from pyrogram import Client, filters
 from instagrapi import Client as InstaClient
 from database.db import db
 
 insta = InstaClient()
 
-# Pyrogram command for login
+
 @Client.on_message(filters.command("login"))
 async def insta_login_handler(client, message):
     insta = InstaClient()
@@ -22,18 +23,16 @@ async def insta_login_handler(client, message):
         except Exception as e:
             await message.reply_text("⚠️ Session expired or invalid. Logging in again...")
 
-    # If no session or expired, login and save
     try:
-        insta.login("loveis8507", "Ansh12345@23")  # Don't hardcode in real use
+        insta.login("loveis8507", "Ansh12345@23")
         session_data = insta.get_settings()
-        await db.save_session(session_data)  # Save session to DB
+        await db.save_session(session_data)
         await message.reply_text("🔐 Logged in and session saved to DB.")
     except Exception as e:
         await message.reply_text(f"❌ Login failed: {str(e)}")
 
 async def fetch_reel(reel_url: str):
     try:
-        # Run blocking functions in background thread
         media_id = await asyncio.to_thread(insta.media_pk_from_url, reel_url)
         reel_info = await asyncio.to_thread(insta.media_info, media_id)
         
@@ -43,6 +42,21 @@ async def fetch_reel(reel_url: str):
     except Exception as e:
         return f"❌ Failed to fetch reel info: {str(e)}"
 
+async def fetch_stories(story_url: str):
+    try:
+        match = re.search(r"/stories/[^/]+/(\d+)", story_url)
+        if not match:
+            return "❌ Invalid story URL format"
+            
+        story_id = match.group(1)
+        story_info = await asyncio.to_thread(insta_client.media_info, story_id)
+
+        media_url = story_info.video_url if story_info.video_url else story_info.thumbnail_url
+        
+        return str(media_url)
+
+    except Exception as e:
+        return f"❌ Failed to fetch story info: {str(e)}"
 
 async def fetch_post(post_url: str):
     try:

@@ -3,6 +3,8 @@ from instagrapi import Client as InstaClient
 
 from database.db import db
 
+insta = InstaClient()
+
 # Pyrogram command for login
 @Client.on_message(filters.command("login"))
 async def insta_login_handler(client, message):

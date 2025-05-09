@@ -41,6 +41,26 @@ async def fetch_reel(reel_url: str):
     except Exception as e:
         return f"❌ Failed to fetch reel info: {str(e)}"
 
+async def fetch_post(post_url: str):
+    try:
+        media_id = insta_client.media_pk_from_url(post_url)
+        post_info = insta_client.media_info(media_id)
+        
+        if post_info.resources:
+            media_list = []
+            for resource in post_info.resources:
+                media_url = resource.video_url if resource.video_url else resource.thumbnail_url
+                media_list.append(str(media_url))
+            response_data = {"media": media_list}
+            
+        else:
+            media_url = post_info.video_url if post_info.video_url else post_info.thumbnail_url
+            response_data = {"media": [str(media_url)]}
+        return response_data
+        
+    except Exception as e:
+        return {"error": f"❌ Failed to fetch post info: {str(e)}"}
+
 
 async def auto_login():
     session_data = await db.load_session()

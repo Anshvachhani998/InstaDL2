@@ -3,6 +3,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 import requests
 from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
+from plugins.login import fetch_caption
 import logging
 import asyncio
         
@@ -12,7 +13,7 @@ logger.setLevel(logging.ERROR)
 
 API_URL = "https://instadl-api.koyeb.app/caption?url={}"
 
-async def fetch_caption(instagram_url):
+async def fetch_captions(instagram_url):
     """API endpoint se caption fetch karega"""
     try:
         response = await asyncio.to_thread(requests.get, API_URL.format(instagram_url))

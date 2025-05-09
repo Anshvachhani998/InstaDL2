@@ -69,9 +69,9 @@ async def fetch_caption(insta_url: str):
 
 async def fetch_user_profile(username: str):
     try:
-        user_info = await asyncio.to_thread(insta_client.user_info_by_username_v1, username)
+        user_info = await asyncio.to_thread(insta.user_info_by_username_v1, username)
 
-        return {
+        data = {
             "full_name": user_info.full_name or "No name available.",
             "profile_pic": str(user_info.profile_pic_url_hd),
             "bio": user_info.biography or "No bio available.",
@@ -80,6 +80,8 @@ async def fetch_user_profile(username: str):
             "is_private": user_info.is_private,
             "is_verified": user_info.is_verified,
         }
+
+        return data
 
     except Exception as e:
         return {"error": f"❌ Failed to fetch user info: {str(e)}"}

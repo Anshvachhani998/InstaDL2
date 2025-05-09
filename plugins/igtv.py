@@ -11,7 +11,7 @@ from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
 from asyncio import create_task
-
+from plugins.login import fetch_reel
 app = Client
 
 API_ENDPOINT = "https://instaapi-green.vercel.app/convert?url={}"
@@ -52,7 +52,7 @@ async def advance_content(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Iɢᴛᴠ 🩷**")
         
-        video_url = await advance_fatch_url(url)
+        video_url = await fetch_reel(url)
         if not video_url:
             await downloading_msg.edit(
                 "** 🚫 Unable to retrieve publication information.**\n\n"

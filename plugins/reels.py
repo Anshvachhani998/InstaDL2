@@ -13,6 +13,7 @@ from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
 from asyncio import create_task
+from plugins.login import fatch_reel
 
 app = Client
 
@@ -54,7 +55,7 @@ async def advance_content(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
         
-        video_url = await advance_fatch_url(url)
+        video_url = await fatch_reel(url)
         if not video_url:
             await downloading_msg.edit(
                 "** 🚫 Unable to retrieve publication information.**\n\n"
@@ -134,68 +135,7 @@ async def handle_instagram_link(client, message):
     user_id = message.from_user.id
     url = message.matches[0].group(0)
 
-    # If the user is subscribed, proceed to download directly
     create_task(advance_content(client, message, url, user_id))
-
-async def test(client, message, url, user_id, mention=None):
-    try:
-        downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
-        
-        file_name = f"downloads/reel_{user_id}.mp4"
-        cmd = [
-            "yt-dlp",
-            "--quiet",
-            "--no-warnings",
-            "--geo-bypass",
-            "-o", file_name,
-            url
-        ]
-
-        process = await asyncio.create_subprocess_exec(*cmd)
-        await process.communicate()
-
-        # Check if file exists after download
-        if not os.path.exists(file_name):
-            await downloading_msg.edit(
-                "**🚫 Unable to download this reel.**\n\n"
-                "Possible reasons:\n"
-                "▫️ Reel is private or removed.\n"
-                "▫️ Geo-blocked in your country.\n"
-                "▫️ yt-dlp unable to extract video.\n\n"
-                "⚠️ Try again later or ask in support group.\n\n"
-                "**💬 Support Group: [SUPPORT](https://t.me/AnSBotsSupports)**",
-                disable_web_page_preview=True
-            )
-            error_message = f"**Error**\n **{url}**\n⚠️ Rᴇᴇʟꜱ Nᴏᴛ Fᴏᴜɴᴅ"
-            await client.send_message(LOG_CHANNEL, error_message)
-            return
-
-        # Prepare caption and buttons
-        caption_user = "**ʜᴇʀᴇ ɪꜱ ʏᴏᴜʀ Rᴇᴇʟꜱ 🎥**\n\n**ᴘʀᴏᴠɪᴅᴇᴅ ʙʏ @Ans_Bots**"
-        buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ 💫", url="https://t.me/AnS_Bots")]
-        ])
-
-        # Send video to user
-        await message.reply_video(video=file_name, caption=caption_user, reply_markup=buttons)
-
-        # Send to dump channel
-        user_mention = mention or message.from_user.mention
-        await client.send_video(
-            DUMP_CHANNEL,
-            video=file_name,
-            caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**"
-        )
-
-        await db.increment_download_count()
-        await downloading_msg.delete()
-        os.remove(file_name)
-
-    except Exception as e:
-        # Send error message with exception details
-        retry_error_message = f"🚨 **Retry Error Alert!**\n\n🔹 **User:** {mention or message.from_user.mention}\n🔹 **URL:** {url}\n🔹 **Retry Error:** `{str(e)}`"
-        await client.send_message(LOG_CHANNEL, retry_error_message)
-        await message.reply(f"**⚠ Something went wrong. Please contact [ADMIN](https://t.me/AnS_team) for support.**")
 
 
 @app.on_callback_query(filters.regex("check_sub"))
@@ -207,7 +147,7 @@ async def check_subscription(client, callback_query):
     if await is_subscribed(client, user_id, FORCE_CHANNEL):
         an = await callback_query.message.edit_text("**🙏 Tʜᴀɴᴋs Fᴏʀ Jᴏɪɴɪɴɢ! Nᴏᴡ Pʀᴏᴄᴇssɪɴɢ Yᴏᴜʀ Lɪɴᴋ...**")
 
-        await test(client, callback_query.message, url, user_id, mention)
+        await advance_content(client, callback_query.message, url, user_id, mention)
         await an.delete()
     else:
         await callback_query.answer("🚨 You are not subscribed yet!", show_alert=True)

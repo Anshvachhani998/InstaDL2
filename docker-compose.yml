@@ -1,8 +1,8 @@
 version: '3'
 services:
-  instadl2:
+  instadl:
     build: .
-    container_name: InstaDL2
+    container_name: InstaDL
     restart: always
     volumes:
       - .:/app

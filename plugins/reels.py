@@ -77,8 +77,6 @@ async def advance_content(client, message, url, user_id, mention=None):
         ])
 
         await message.reply_video(video_url, caption=caption_user, reply_markup=buttons)
-
-        # `mention` ko check karenge, agar None hai toh `message.from_user.mention` use karenge
         user_mention = mention or message.from_user.mention  
 
         await client.send_video(DUMP_CHANNEL, video=video_url, caption=f"✅ **Dᴏᴡɴʟᴏᴀᴅᴇᴅ Bʏ: {user_mention}**\n📌 **Sᴏᴜʀᴄᴇ URL: [Click Here]({url})**")

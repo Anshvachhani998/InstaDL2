@@ -49,14 +49,14 @@ class Database:
         await self.col.delete_many({'id': int(user_id)})
 
 
-    async def save_session(session_data):
+    async def save_session(self, session_data):
         await self.login.update_one(
             {"_id": "insta_session"},
             {"$set": {"session_data": session_data}},
             upsert=True
         )
 
-    async def load_session():
+    async def load_session(self):
         saved_session = await self.login.find_one({"_id": "insta_session"})
         if saved_session and "session_data" in saved_session:
             return saved_session["session_data"]

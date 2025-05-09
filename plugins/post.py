@@ -7,6 +7,7 @@ from utils import get_invite_link, is_subscribed
 from database.db import db
 import logging 
 from asyncio import create_task
+from plugins.login import fetch_post
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ async def advance_content(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Pᴏꜱᴛ 🩷**")
         
-        media_urls = await advance_fatch_url(url)  # API se media URLs fetch karna
+        media_urls = await fetch_post(url)  # API se media URLs fetch karna
         
         if not media_urls:
             await downloading_msg.edit(
@@ -90,9 +91,6 @@ async def advance_content(client, message, url, user_id, mention=None):
 async def handle_instagram_link(client, message):
     user_id = message.from_user.id
     url = message.matches[0].group(0)
-
-    # If the user is subscribed, proceed to download directly
-    # We make sure the download process runs in the background so it doesn't block.
     create_task(advance_content(client, message, url, user_id))
 
 

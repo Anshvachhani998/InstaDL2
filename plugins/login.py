@@ -41,20 +41,23 @@ insta_client = InstaClient()
 # Load saved session (assuming you already have a load_session() function)
 @Client.on_message(filters.command("reel") & filters.private)
 async def get_reel_info(client, message):
+    if not client.insta:
+        return await message.reply_text("❌ Instagram not logged in.")
+
     if len(message.command) < 2:
         return await message.reply_text("⚠️ Please provide a Reel URL.\n\nUsage: `/reel <reel_url>`", quote=True)
 
     reel_url = message.text.split(" ", 1)[1].strip()
 
-
     try:
-        media_id = insta_client.media_pk_from_url(reel_url)
-        reel_info = insta_client.media_info(media_id)
-
+        media_id = client.insta.media_pk_from_url(reel_url)
+        reel_info = client.insta.media_info(media_id)
         video_url = str(reel_info.video_url)
+
         await message.reply_text(f"🎬 **Reel Video URL:**\n{video_url}")
     except Exception as e:
         await message.reply_text(f"❌ Failed to fetch reel info:\n{e}")
+
 
 
 

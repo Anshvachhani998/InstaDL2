@@ -6,7 +6,7 @@ from utils import get_invite_link, is_subscribed
 import logging
 import aiohttp
 from asyncio import create_task
-
+from plugins.login import fetch_user_profile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
@@ -54,7 +54,7 @@ async def fetch_instagram_profile(client, message, username, user_id, mention=No
     try:
         loading_msg = await message.reply("**🔍 ꜰᴇᴛᴄʜɪɴɢ ɪɴꜱᴛᴀɢʀᴀᴍ ᴘʀᴏꜰɪʟᴇ 🩷**")
 
-        profile = await fetch_profile(username)
+        profile = await fetch_user_profile(username)
         if not profile:
             await loading_msg.edit(f"⚠️ ᴜꜱᴇʀɴᴀᴍᴇ ɴᴏᴛ ꜰᴏᴜɴᴅ!")
             user_mention = message.from_user.mention

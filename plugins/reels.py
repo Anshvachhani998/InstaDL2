@@ -13,7 +13,7 @@ from info import DUMP_CHANNEL, LOG_CHANNEL, FORCE_CHANNEL
 from utils import get_invite_link, is_subscribed
 from database.db import db
 from asyncio import create_task
-from plugins.login import fatch_reel
+from plugins.login import fetch_reel
 
 app = Client
 
@@ -55,7 +55,7 @@ async def advance_content(client, message, url, user_id, mention=None):
     try:
         downloading_msg = await message.reply("**Dᴏᴡɴʟᴏᴀᴅɪɴɢ Yᴏᴜʀ Rᴇᴇʟꜱ 🩷**")
         
-        video_url = await fatch_reel(url)
+        video_url = await fetch_reel(url)
         if not video_url:
             await downloading_msg.edit(
                 "** 🚫 Unable to retrieve publication information.**\n\n"
